@@ -1,7 +1,7 @@
 use avian3d::prelude::Collider;
 use bevy::{prelude::*};
 use lightyear::prelude::*;
-use mygame_assets::{level_assets::LevelAssets, AssetState, CurrentLevel};
+use mygame_assets::{assets::LevelAssets, AssetState, CurrentLevel};
 use mygame_protocol::component::Level;
 
 
@@ -32,6 +32,8 @@ fn load_level(
     next_asset_state.set(AssetState::Loading);
 }
 
+/// In response to entering the "Loaded" AssetState, spawn the level assets
+/// that were preloaded.
 fn level_loaded(
     mut commands: Commands,
     current_level: Res<CurrentLevel>,

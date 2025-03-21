@@ -1,5 +1,9 @@
 use bevy::prelude::*;
 
+#[derive(Resource, Default)]
+pub struct GlobalAssets {
+    pub character: Handle<Gltf>,
+}
 
 #[derive(Resource, Default)]
 pub struct LevelAssets {

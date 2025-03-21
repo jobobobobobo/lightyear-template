@@ -10,9 +10,10 @@ use crate::{network::NetworkPlugin, replication::ReplicationPlugin, ui::UiPlugin
 pub enum GameState {
     #[default]
     MainMenu,
-    Connecting,
-    Loading,
-    Playing,
+    Connecting, // Connection request sent to the server
+    Loading,    // Connected and server told us to load something
+    Spawning,   // Loaded the assets, now wait for the Player to be replicated
+    Playing     // Player exists and we can give control to the client
 }
 
 pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App {

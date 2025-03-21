@@ -1,13 +1,57 @@
+use avian3d::prelude::{Position, Rotation};
 use bevy::prelude::*;
-use lightyear::prelude::{server::ServerCommandsExt, MessageSend, NetworkTarget, Replicating, ServerConnectEvent, ServerConnectionManager, ServerDisconnectEvent};
+use lightyear::prelude::{server::{ControlledBy, Lifetime, ServerCommandsExt, SyncTarget}, FromClients, MessageSend, NetworkTarget, ReplicateHierarchy, Replicating, ServerConnectEvent, ServerConnectionManager, ServerDisconnectEvent, ServerReplicate};
 use mygame_assets::CurrentLevel;
-use mygame_protocol::{component::Level, message::{ServerWelcome, UnorderedReliable}};
+use mygame_protocol::{component::{Level, Player}, message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable}};
+
+use crate::network::REPLICATION_GROUP_PREDICTED;
 
 pub struct ReplicationPlugin;
 impl Plugin for ReplicationPlugin {
     fn build(&self, app: &mut App) {
         app.add_observer(on_client_connect_success);
         app.add_observer(on_client_disconnect);
+
+        app.add_systems(Update, on_client_load_complete);
+    }
+}
+
+fn on_client_load_complete(
+    mut ev_client_load_complete: ResMut<Events<FromClients<ClientLevelLoadComplete>>>,
+    mut commands: Commands,
+    q_players: Query<&Player>,
+) {
+    for ev in ev_client_load_complete.drain() {
+        let player_exists = q_players.iter().any(|player_id| player_id.0 == ev.from);
+
+        if !player_exists {
+            commands.spawn((
+                Position::default(),
+                Rotation::default(),
+                Player(ev.from),
+                ServerReplicate {
+                    group: REPLICATION_GROUP_PREDICTED,
+                    controlled_by: ControlledBy {
+                        target: NetworkTarget::Single(ev.from),
+                        lifetime: Lifetime::SessionBased,
+                    },
+                    sync: SyncTarget {
+                        prediction: NetworkTarget::Single(ev.from),
+                        interpolation: NetworkTarget::AllExceptSingle(ev.from),
+                    },
+                    hierarchy: ReplicateHierarchy {
+                        enabled: false,
+                        ..default()
+                    },
+                    ..default()
+                }
+            ));
+        } else {
+            warn!(
+                "Client {} reported load complete, but character already existed in world. Ignoring.",
+                ev.from
+            );
+        }
     }
 }
 

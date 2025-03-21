@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use lightyear::prelude::{server::{ServerCommandsExt, ServerConnection}, ServerConnectionManager};
+use lightyear::prelude::{server::{ServerCommandsExt, ServerConnection}, ReplicationGroup, ServerConnectionManager};
 use mygame_assets::AssetState;
 use mygame_common::level::LoadLevelRequest;
 use mygame_protocol::component::Level;
@@ -14,6 +14,8 @@ impl Plugin for NetworkPlugin {
         );
     }
 }
+
+pub (crate) const REPLICATION_GROUP_PREDICTED: ReplicationGroup = ReplicationGroup::new_id(42);
 
 fn start_server(
     mut commands: Commands,
