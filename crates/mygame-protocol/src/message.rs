@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 use lightyear::prelude::*;
 
+use crate::component::Level;
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
-pub struct SeverBeginReplicateLevel {
-    pub num_level_entities: usize,
+pub struct ServerWelcome {
+    pub current_level: Level,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -13,7 +15,7 @@ pub struct ClientLevelLoadComplete;
 pub struct UnorderedReliable;
 
 pub fn register_messages(app: &mut App) {
-    app.register_message::<SeverBeginReplicateLevel>(ChannelDirection::ServerToClient);
+    app.register_message::<ServerWelcome>(ChannelDirection::ServerToClient);
 
     app.register_message::<ClientLevelLoadComplete>(ChannelDirection::ClientToServer);
 

@@ -14,8 +14,5 @@ clap = { version = "4.5", features = ["derive"]}
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
 lightyear = { workspace = true, features = ["webtransport"] }
 
-[features]
-headless = []
-
 [lints]
 workspace = true

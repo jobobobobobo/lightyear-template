@@ -5,7 +5,8 @@ members = [
   "crates/mygame-common",
   "crates/mygame-protocol",
   "crates/mygame-launcher",
-  "crates/mygame-render"
+  "crates/mygame-render",
+  "crates/mygame-assets"
 ]
 resolver = "2"
 

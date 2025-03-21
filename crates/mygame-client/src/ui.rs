@@ -8,6 +8,9 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::MainMenu), spawn_main_menu_ui);
+        app.add_systems(OnEnter(GameState::Connecting), on_client_begin_connecting);
+        app.add_systems(OnEnter(GameState::Loading), on_client_begin_loading);
+        app.add_systems(OnEnter(GameState::Playing), despawn_main_menu_ui);
     }
 }
 
@@ -66,4 +69,22 @@ fn spawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<Ma
                     commands.set_state(GameState::Connecting);
                 });
         });
+}
+
+fn on_client_begin_loading(mut q_status_text: Query<&mut Text, With<MainMenuStatusText>>) {
+    for mut text in q_status_text.iter_mut() {
+        text.0 = String::from("Loading");
+    }
+}
+
+fn on_client_begin_connecting(mut q_status_text: Query<&mut Text, With<MainMenuStatusText>>) {
+    for mut text in q_status_text.iter_mut() {
+        text.0 = String::from("Connecting");
+    }
+}
+
+fn despawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<MainMenu>>) {
+    for entity in &q_main_menu {
+        commands.entity(entity).despawn_recursive();
+    }
 }

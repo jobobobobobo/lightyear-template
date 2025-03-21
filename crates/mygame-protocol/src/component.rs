@@ -2,7 +2,22 @@ use avian3d::prelude::*;
 use bevy::prelude::*;
 use lightyear::{prelude::{client::{ComponentSyncMode, LerpFn}, *}, utils::bevy::TransformLinearInterpolation};
 
+
+#[derive(Component, Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct Player(pub ClientId);
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash, Copy, Default)]
+pub enum Level {
+    #[default]
+    Void,
+    Example
+}
+
 pub fn register_components(app: &mut App) {
+    app.register_component::<Player>(ChannelDirection::ServerToClient)
+        .add_prediction(ComponentSyncMode::Once)
+        .add_interpolation(ComponentSyncMode::Once);
+
     app.register_component::<Position>(ChannelDirection::ServerToClient)
         .add_prediction(ComponentSyncMode::Full)
         .add_interpolation(ComponentSyncMode::Full)

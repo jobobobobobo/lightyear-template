@@ -4,7 +4,7 @@ Replace all instances of `mygame` in the names of folders and files with the nam
 
 # Usage
 
-`cargo run client`
+`cargo run client -c 1`
 `cargo run server`
 
 # Notes

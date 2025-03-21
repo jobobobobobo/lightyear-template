@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 mygame-protocol = { path = "../mygame-protocol" }
+mygame-assets = { path = "../mygame-assets" }
 lightyear.workspace = true
 leafwing-input-manager.workspace = true
 avian3d.workspace = true
@@ -14,9 +15,6 @@ bevy-inspector-egui.workspace = true
 
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
 lightyear = { workspace = true, features = ["webtransport"] }
-
-[features]
-headless = []
 
 [lints]
 workspace = true

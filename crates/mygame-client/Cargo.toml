@@ -7,6 +7,7 @@ edition = "2024"
 mygame-common = { path = "../mygame-common" }
 mygame-render = { path = "../mygame-render" }
 mygame-protocol = { path = "../mygame-protocol" }
+mygame-assets = { path = "../mygame-assets" }
 lightyear.workspace = true
 leafwing-input-manager.workspace = true
 avian3d.workspace = true

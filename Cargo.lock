@@ -3666,6 +3666,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "mygame-assets"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "mygame-protocol",
+]
+
+[[package]]
 name = "mygame-client"
 version = "0.1.0"
 dependencies = [
@@ -3673,6 +3681,7 @@ dependencies = [
  "bevy",
  "leafwing-input-manager",
  "lightyear",
+ "mygame-assets",
  "mygame-common",
  "mygame-protocol",
  "mygame-render",
@@ -3688,6 +3697,7 @@ dependencies = [
  "bevy-inspector-egui",
  "leafwing-input-manager",
  "lightyear",
+ "mygame-assets",
  "mygame-protocol",
  "serde",
 ]
@@ -3734,6 +3744,7 @@ dependencies = [
  "bevy",
  "leafwing-input-manager",
  "lightyear",
+ "mygame-assets",
  "mygame-common",
  "mygame-protocol",
  "mygame-render",

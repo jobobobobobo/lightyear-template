@@ -59,11 +59,14 @@ fn main() {
         },
     };
 
+    
+    let development_asset_path = String::from("../mygame-assets/assets");
+
     match cli.mode {
         Mode::Client => {
             if cli.client_id == 0 {
-                warn!(
-                    "To connect with multiple clients, specify a unique client id with --client_id <id>"
+                panic!(
+                    "No --client_id specified. To connect with multiple clients, specify a unique client id with --client_id <id>"
                 )
             }
 
@@ -117,7 +120,7 @@ fn main() {
                 ..default()
             };
 
-            build_client_app(client_config).run();
+            build_client_app(client_config, development_asset_path).run();
         }
         Mode::Server => {
             let server_launch_options = ServerLaunchOptions {
@@ -155,7 +158,7 @@ fn main() {
                 ..default()
             };
 
-            build_server_app(server_config, cli.headless).run();
+            build_server_app(server_config, development_asset_path, cli.headless).run();
         }
         Mode::Combined => todo!(),
     }

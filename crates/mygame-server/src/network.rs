@@ -1,5 +1,8 @@
 use bevy::prelude::*;
-use lightyear::prelude::server::ServerCommandsExt;
+use lightyear::prelude::{server::{ServerCommandsExt, ServerConnection}, ServerConnectionManager};
+use mygame_assets::AssetState;
+use mygame_common::level::LoadLevelRequest;
+use mygame_protocol::component::Level;
 
 pub struct NetworkPlugin;
 
@@ -16,4 +19,8 @@ fn start_server(
     mut commands: Commands,
 ) {
     commands.start_server();
+
+    commands.trigger(LoadLevelRequest {
+        level: Level::Example,
+    });
 }
