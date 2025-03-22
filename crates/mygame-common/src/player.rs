@@ -1,11 +1,12 @@
-use avian3d::prelude::{Collider, RigidBody, collider};
+use avian3d::prelude::{Collider, LinearVelocity, RigidBody, collider};
 use bevy::{gltf::GltfMesh, prelude::*};
+use leafwing_input_manager::prelude::{ActionState, InputMap, VirtualDPad};
 use lightyear::prelude::{
-    client::{Interpolated, Predicted},
+    client::{Confirmed, Interpolated, Predicted},
     server::ReplicationTarget,
 };
 use mygame_assets::{AssetState, assets::GlobalAssets};
-use mygame_protocol::component::Player;
+use mygame_protocol::{component::Player, input::NetworkedInput};
 
 pub struct PlayerPlugin;
 
@@ -13,34 +14,58 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (player_physics).run_if(in_state(AssetState::Loaded)),
+            (add_player_gameplay_components).run_if(in_state(AssetState::Loaded)),
+        );
+
+        app.add_systems(
+            FixedUpdate,
+            move_player
         );
     }
 }
 
-type NeedsPhysicsFilter = (
-    Without<RigidBody>,
-    Or<(
-        With<Predicted>,
-        With<ReplicationTarget>,
-        (Without<Predicted>, Without<Interpolated>),
-    )>,
-);
+type Simulated = Or<(
+    With<Predicted>,
+    With<ReplicationTarget>,
+)>;
 
-fn player_physics(
+type Rendered = Or<(
+    Simulated,
+    With<Interpolated>,
+)>;
+
+fn add_player_gameplay_components(
     mut commands: Commands,
-    q_player_without_physics: Query<Entity, (NeedsPhysicsFilter, With<Player>)>,
+    q_rendered_player: Query<Entity, (Rendered, Without<RigidBody>, With<Player>)>,
     global_assets: Res<GlobalAssets>,
 ) {
-    if q_player_without_physics.is_empty() {
+    if q_rendered_player.is_empty() {
         return;
     }
 
-    for player_entity in &q_player_without_physics {
+    for player_entity in &q_rendered_player {
         commands.entity(player_entity).insert((
             RigidBody::Kinematic,
             Collider::capsule(3.0, 4.0),
-            SceneRoot(global_assets.character.clone())
+            InputMap::<NetworkedInput>::default()
+                .with_dual_axis(NetworkedInput::Move, VirtualDPad::wasd()),
+            SceneRoot(global_assets.character.clone()),
         ));
+    }
+}
+
+const PLAYER_MOVE_SPEED: f32 = 10.0;
+
+fn move_player(
+    mut q_player: Query<
+        (&ActionState<NetworkedInput>, &mut LinearVelocity),
+        (Simulated, With<Player>),
+    >,
+) {
+    for (action_state, mut velocity) in q_player.iter_mut() {
+        if let Some(movement) = action_state.dual_axis_data(&NetworkedInput::Move) {
+            let move_vec = Vec3::new(movement.pair.x, 0.0, -movement.pair.y).normalize();
+            velocity.0 = move_vec * PLAYER_MOVE_SPEED;
+        }
     }
 }
