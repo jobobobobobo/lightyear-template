@@ -3681,12 +3681,14 @@ version = "0.1.0"
 dependencies = [
  "avian3d",
  "bevy",
+ "crossbeam-channel",
  "leafwing-input-manager",
  "lightyear",
  "mygame-assets",
  "mygame-common",
  "mygame-protocol",
  "mygame-render",
+ "mygame-server",
  "serde",
 ]
 
@@ -3710,6 +3712,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "clap",
+ "crossbeam-channel",
  "lightyear",
  "mygame-client",
  "mygame-common",

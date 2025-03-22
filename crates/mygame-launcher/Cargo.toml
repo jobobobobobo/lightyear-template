@@ -6,9 +6,10 @@ edition = "2024"
 [dependencies]
 mygame-common = { path = "../mygame-common" }
 mygame-server = { path = "../mygame-server" }
-mygame-client = { path = "../mygame-client" }
+mygame-client = { path = "../mygame-client", features = ["host"] }
 lightyear.workspace = true
 bevy.workspace = true
+crossbeam-channel.workspace = true
 clap = { version = "4.5", features = ["derive"]}
 
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]

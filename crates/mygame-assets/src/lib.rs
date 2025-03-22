@@ -71,7 +71,7 @@ fn on_enter_load_level(
 }
 
 /// Sets the AssetState to Loaded once all queued Handles have finished loading
-/// Downstream systems should consume this state change as part of their loading process
+/// Downstream systems should consume this state change as part of their loading sequence
 fn check_asset_loading(
     asset_server: Res<AssetServer>,
     mut loading_assets: ResMut<LoadingAssets>,

@@ -6,6 +6,8 @@ pub struct RenderPlugin;
 
 mod camera;
 
+// If the headless server can't run it or doesn't need it
+// It goes in this plugin
 impl Plugin for RenderPlugin {
     fn build(&self, app: &mut App) {
         app

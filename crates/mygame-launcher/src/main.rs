@@ -43,7 +43,6 @@ struct Cli {
 enum Mode {
     Client,
     Server,
-    Combined,
 }
 
 fn main() {
@@ -59,7 +58,6 @@ fn main() {
         },
     };
 
-    
     let development_asset_path = String::from("../mygame-assets/assets");
 
     match cli.mode {
@@ -74,7 +72,7 @@ fn main() {
                 listen_addr: Ipv4Addr::LOCALHOST.into(),
                 listen_port: 0,
                 server_addr: Ipv4Addr::LOCALHOST.into(),
-                server_port: 12025,
+                server_port: 0, // external: 12025, internal: 0
                 conditioner: LinkConditionerConfig {
                     incoming_latency: Duration::from_millis(50),
                     incoming_jitter: Duration::ZERO,
@@ -84,11 +82,20 @@ fn main() {
                 min_delay: Duration::from_millis(25),
             };
 
-            let transport_config =
-                ClientIoConfig::from_transport(ClientTransport::UdpSocket(SocketAddr::new(
-                    IpAddr::V4(client_launch_options.listen_addr),
-                    client_launch_options.listen_port,
-                )));
+            let (from_server_send, from_server_recv) = crossbeam_channel::unbounded();
+            let (to_server_send, to_server_recv) = crossbeam_channel::unbounded();
+
+            // Example for non-hosting client
+            // let transport_config =
+            //     ClientIoConfig::from_transport(ClientTransport::UdpSocket(SocketAddr::new(
+            //         IpAddr::V4(client_launch_options.listen_addr),
+            //         client_launch_options.listen_port,
+            //     )));
+
+            let transport_config = ClientIoConfig::from_transport(ClientTransport::LocalChannel {
+                recv: from_server_recv.clone(),
+                send: to_server_send.clone(),
+            });
 
             let auth = Authentication::Manual {
                 server_addr: SocketAddr::new(
@@ -113,14 +120,57 @@ fn main() {
                 },
                 prediction: PredictionConfig::default()
                     .with_correction_ticks_factor(client_launch_options.correction_ticks_factor),
-                interpolation: InterpolationConfig {
+                interpolation: InterpolationConfig {    // launch option?
                     min_delay: client_launch_options.min_delay,
                     send_interval_ratio: 0.,
                 },
                 ..default()
             };
 
-            build_client_app(client_config, development_asset_path).run();
+            let server_link_conditioner = LinkConditionerConfig { // should be launch option
+                incoming_latency: Duration::from_millis(50),
+                incoming_jitter: Duration::ZERO,
+                incoming_loss: 0.0,
+            };
+
+            let server_io_config = ServerIoConfig::from_transport(ServerTransport::UdpSocket(
+                (Ipv4Addr::LOCALHOST, 12025).into(),    // port and binding address should be launch options?
+            ))
+            .with_conditioner(server_link_conditioner);
+
+            let server_netcode_config = ServerNetcodeConfig::default()
+                .with_protocol_id(shared_launch_options.protocol_id)
+                .with_key(shared_launch_options.key);
+
+            let net_configs = vec![
+                ServerNetConfig::Netcode {
+                    config: server_netcode_config.clone(),
+                    io: server_io_config,
+                },
+                ServerNetConfig::Netcode {
+                    config: server_netcode_config.clone(),
+                    io: ServerIoConfig::from_transport(ServerTransport::Channels {
+                        channels: vec![(
+                            SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 12027),
+                            to_server_recv,
+                            from_server_send,
+                        )],
+                    }),
+                },
+            ];
+
+            let server_config = ServerConfig {
+                shared: shared_config,
+                net: net_configs,
+                ..default()
+            };
+
+            build_client_app(
+                client_config,
+                development_asset_path,
+                server_config,
+            )
+            .run();
         }
         Mode::Server => {
             let server_launch_options = ServerLaunchOptions {
@@ -160,6 +210,5 @@ fn main() {
 
             build_server_app(server_config, development_asset_path, cli.headless).run();
         }
-        Mode::Combined => todo!(),
     }
 }
