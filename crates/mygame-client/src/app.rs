@@ -2,11 +2,12 @@ use bevy::{log::{Level, LogPlugin}, prelude::*};
 use lightyear::{client::{config::ClientConfig, plugin::ClientPlugins}, server::config::ServerConfig};
 use mygame_common::CommonPlugin;
 use mygame_render::RenderPlugin;
+use bevy::asset::AssetMetaCheck;
 
 use crate::{network::NetworkPlugin, replication::ReplicationPlugin, ui::UiPlugin};
 
 #[cfg(feature = "host")]
-use crate::host::{HostPlugin};
+use crate::host::HostPlugin;
 
 #[derive(States, Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {
@@ -40,6 +41,7 @@ pub fn build_client_app(
             DefaultPlugins.build().set(
                 AssetPlugin {
                     file_path: asset_path.clone(),
+                    meta_check: AssetMetaCheck::Never,
                     ..default()
                 }
             ),
@@ -66,6 +68,7 @@ pub fn build_client_app(
     server_config: ServerConfig,
 ) -> App {
 
+
     let mut app = App::new();
     
     app
@@ -73,6 +76,7 @@ pub fn build_client_app(
             DefaultPlugins.build().set(
                 AssetPlugin {
                     file_path: asset_path.clone(),
+                    meta_check: AssetMetaCheck::Never,
                     ..default()
                 }
             ),

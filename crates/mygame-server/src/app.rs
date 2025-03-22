@@ -66,7 +66,10 @@ pub fn build_server_app(server_config: ServerConfig, asset_path: String, headles
 
         app.init_asset::<Image>(); // or add ImagePlugin
     } else {
-        app.add_plugins(DefaultPlugins.build().set(asset_plugin));
+        app.add_plugins((
+            DefaultPlugins.build().set(asset_plugin),
+            RenderPlugin,
+        ));
     }
 
     app.add_plugins(ServerPlugins {

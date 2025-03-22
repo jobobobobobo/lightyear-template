@@ -6,9 +6,13 @@ pub struct ServerLaunchOptions {
     pub headless: bool,
 
     pub listen_addr: Ipv4Addr,
-    pub listen_port: u16,
+    pub udp_listen_port: u16,
+    pub webtransport_listen_port: u16,
 
-    pub conditioner: LinkConditionerConfig
+    pub conditioner: LinkConditionerConfig,
+
+    pub webtransport_cert_path: String,
+    pub webtransport_key_path: String,
 }
 
 pub struct ClientLaunchOptions {
@@ -22,6 +26,9 @@ pub struct ClientLaunchOptions {
 
     pub correction_ticks_factor: f32,
     pub min_delay: Duration,
+
+    #[cfg(any(target_arch = "wasm32", target_arch = "wasm64"))]
+    pub client_id: u64,
 }
 
 pub struct SharedLaunchOptions {

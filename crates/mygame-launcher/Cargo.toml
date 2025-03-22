@@ -6,14 +6,26 @@ edition = "2024"
 [dependencies]
 mygame-common = { path = "../mygame-common" }
 mygame-server = { path = "../mygame-server" }
-mygame-client = { path = "../mygame-client", features = ["host"] }
 lightyear.workspace = true
 bevy.workspace = true
 crossbeam-channel.workspace = true
 clap = { version = "4.5", features = ["derive"]}
 
-[target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
-lightyear = { workspace = true, features = ["webtransport"] }
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# Only add the host feature for non-wasm builds
+mygame-client = { path = "../mygame-client", features = ["host"] }
+tokio = { version = "1", features = ["rt", "fs"] } # need async to load certs
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+mygame-client = { path = "../mygame-client" }  # No host feature for wasm
+wasm-bindgen = "=0.2.100"
+console_error_panic_hook = "0.1.6"
+web-sys = { version = "0.3.77", features = ["Location", "UrlSearchParams"] }
 
 [lints]
 workspace = true
+
+[[bin]]
+name = "mygame-launcher"
+path = "src/main.rs"
+
