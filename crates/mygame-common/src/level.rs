@@ -1,31 +1,38 @@
 use avian3d::prelude::Collider;
 use bevy::{prelude::*};
 use lightyear::prelude::*;
-use mygame_assets::{assets::LevelAssets, AssetState, CurrentLevel};
+use mygame_assets::{assets::LevelAssets, AssetState, LevelToLoad};
 use mygame_protocol::component::Level;
 
 
 pub struct LevelPlugin;
 
+// A "Level" represents every non-replicated object in your environment.
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_observer(load_level)
             .add_systems(OnEnter(AssetState::Loaded), level_loaded);
+
+        
+        app.init_resource::<CurrentLevel>();
     }
 }
+
+#[derive(Resource, Clone, Deref, DerefMut, Default)]
+pub struct CurrentLevel(pub Level);
 
 #[derive(Event, Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct LoadLevelRequest {
     pub level: Level,
 }
 
-// A "Level" in this template represents every non-replicated object in your environment.
+/// Inform the Asset system of what level to load, and trigger its loading
 fn load_level(
     trigger: Trigger<LoadLevelRequest>,
     identity: NetworkIdentity,
     mut next_asset_state: ResMut<NextState<AssetState>>,
-    mut level_to_load: ResMut<CurrentLevel>,
+    mut level_to_load: ResMut<LevelToLoad>,
 ) {
     // todo: unload old level? 
     level_to_load.0 = trigger.level;
@@ -36,20 +43,21 @@ fn load_level(
 /// that were preloaded.
 fn level_loaded(
     mut commands: Commands,
-    current_level: Res<CurrentLevel>,
+    mut current_level: ResMut<CurrentLevel>,
+    level_to_load: Res<LevelToLoad>,
     level_assets: Res<LevelAssets>,
-    gltfs: Res<Assets<Gltf>>,
 ) {
-    match **current_level {
+
+    match **level_to_load {
         Level::Void => {
             warn!("Did not specify a level to load; loading nothing.")
         },
         Level::Example => {
-            let environment = gltfs.get(&level_assets.example_level.environment).expect("Shouldve been preloaded");
-
             commands.spawn(
-                SceneRoot(environment.scenes[0].clone())
+                SceneRoot(level_assets.example_level.clone())
             );
         },
     }
+
+    current_level.0 = level_to_load.0;
 }

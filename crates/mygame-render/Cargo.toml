@@ -9,6 +9,7 @@ avian3d.workspace = true
 bevy.workspace = true
 serde.workspace = true
 leafwing-input-manager.workspace = true
+bevy-inspector-egui.workspace = true
 
 [lints]
 workspace = true

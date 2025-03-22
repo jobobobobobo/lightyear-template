@@ -1,6 +1,5 @@
 use bevy::{log::{Level, LogPlugin}, prelude::*};
 use lightyear::client::{config::ClientConfig, plugin::ClientPlugins};
-use mygame_assets::CurrentLevel;
 use mygame_common::CommonPlugin;
 use mygame_render::RenderPlugin;
 
@@ -38,7 +37,6 @@ pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App 
         ));
 
     app.init_state::<GameState>();
-    app.init_resource::<CurrentLevel>();
     
     app
 }

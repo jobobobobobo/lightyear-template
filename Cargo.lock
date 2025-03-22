@@ -3669,7 +3669,9 @@ dependencies = [
 name = "mygame-assets"
 version = "0.1.0"
 dependencies = [
+ "avian3d",
  "bevy",
+ "lightyear",
  "mygame-protocol",
 ]
 
@@ -3731,6 +3733,7 @@ version = "0.1.0"
 dependencies = [
  "avian3d",
  "bevy",
+ "bevy-inspector-egui",
  "leafwing-input-manager",
  "lightyear",
  "serde",

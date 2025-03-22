@@ -1,17 +1,12 @@
+use avian3d::prelude::Collider;
 use bevy::prelude::*;
 
 #[derive(Resource, Default)]
 pub struct GlobalAssets {
-    pub character: Handle<Gltf>,
+    pub character: Handle<Scene>,
 }
 
 #[derive(Resource, Default)]
 pub struct LevelAssets {
-    pub example_level: ExampleLevelAssets,
+    pub example_level: Handle<Scene>,
 }
-
-#[derive(Default)]
-pub struct ExampleLevelAssets {
-    pub environment: Handle<Gltf>,
-}
-

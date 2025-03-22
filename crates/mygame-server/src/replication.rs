@@ -1,7 +1,7 @@
 use avian3d::prelude::{Position, Rotation};
 use bevy::prelude::*;
 use lightyear::prelude::{server::{ControlledBy, Lifetime, ServerCommandsExt, SyncTarget}, FromClients, MessageSend, NetworkTarget, ReplicateHierarchy, Replicating, ServerConnectEvent, ServerConnectionManager, ServerDisconnectEvent, ServerReplicate};
-use mygame_assets::CurrentLevel;
+use mygame_common::level::CurrentLevel;
 use mygame_protocol::{component::{Level, Player}, message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable}};
 
 use crate::network::REPLICATION_GROUP_PREDICTED;
@@ -23,10 +23,11 @@ fn on_client_load_complete(
 ) {
     for ev in ev_client_load_complete.drain() {
         let player_exists = q_players.iter().any(|player_id| player_id.0 == ev.from);
+        let player_start_position = Position(Vec3::new(0.0, 6.0, 0.0));
 
         if !player_exists {
             commands.spawn((
-                Position::default(),
+                player_start_position,
                 Rotation::default(),
                 Player(ev.from),
                 ServerReplicate {
