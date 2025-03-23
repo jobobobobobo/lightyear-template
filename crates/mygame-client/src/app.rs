@@ -25,6 +25,7 @@ pub enum GameState {
     #[cfg(feature = "host")]
     Hosting, // Prepping the local server
     ConnectingRemote, // Connection request sent to the server,
+    #[cfg(feature = "host")]
     ConnectingSelf,   // Connection request sent to the LOCAL server
     Loading,          // Connected and server told us to load something
     Spawning,         // Loaded the assets, now wait for the Player to be replicated
@@ -36,12 +37,11 @@ pub enum GameState {
 #[derive(Resource)]
 pub struct AssetPath(pub String);
 
-#[cfg(feature = "host")]
 #[derive(Resource)]
-pub struct ClientHostConfig {
-    pub server_config: ServerConfig,
-    pub client_local_config: ClientConfig,
-    pub client_remote_config: ClientConfig,
+pub struct LaunchConfigurations {
+    pub server_config: Option<ServerConfig>,
+    pub client_local_config: Option<ClientConfig>,
+    pub client_remote_config: Option<ClientConfig>,
 }
 
 #[cfg(not(feature = "host"))]
@@ -55,7 +55,7 @@ pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App 
             ..default()
         }),
         ClientPlugins {
-            config: client_config,
+            config: client_config.clone(),
         },
         CommonPlugin,
         UiPlugin,
@@ -66,6 +66,11 @@ pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App 
 
     app.init_state::<GameState>();
     app.insert_resource(AssetPath(asset_path));
+    app.insert_resource(LaunchConfigurations {
+        server_config: None,
+        client_local_config: None,
+        client_remote_config: Some(client_config),
+    });
 
     app
 }
@@ -101,10 +106,10 @@ pub fn build_client_app(
     app.init_state::<GameState>();
     app.insert_resource(AssetPath(asset_path));
 
-    app.insert_resource(ClientHostConfig {
-        server_config,
-        client_local_config,
-        client_remote_config,
+    app.insert_resource(LaunchConfigurations {
+        server_config: Some(server_config),
+        client_local_config: Some(client_local_config),
+        client_remote_config: Some(client_remote_config),
     });
 
     app

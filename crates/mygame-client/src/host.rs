@@ -11,7 +11,7 @@ use std::{
     time::Duration,
 };
 
-use crate::app::{AssetPath, ClientHostConfig, GameState};
+use crate::app::{AssetPath, GameState, LaunchConfigurations};
 use mygame_server::app::{ServerMode, build_server_app};
 
 pub struct HostPlugin;
@@ -33,12 +33,15 @@ impl SendApp {
 
 fn on_client_begin_hosting(
     mut commands: Commands,
-    host_config: ResMut<ClientHostConfig>,
+    launch_configurations: ResMut<LaunchConfigurations>,
     asset_path: Res<AssetPath>,
 ) {
     {
         let server_app = build_server_app(
-            host_config.server_config.clone(),
+            launch_configurations
+                .server_config
+                .clone()
+                .expect("There must be a server config if we are in host mode."),
             asset_path.0.clone(),
             ServerMode::ClientHost,
         );
