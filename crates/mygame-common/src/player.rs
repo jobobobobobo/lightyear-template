@@ -17,22 +17,13 @@ impl Plugin for PlayerPlugin {
             (add_player_gameplay_components).run_if(in_state(AssetState::Loaded)),
         );
 
-        app.add_systems(
-            FixedUpdate,
-            move_player
-        );
+        app.add_systems(FixedUpdate, move_player);
     }
 }
 
-type Simulated = Or<(
-    With<Predicted>,
-    With<ReplicationTarget>,
-)>;
+type Simulated = Or<(With<Predicted>, With<ReplicationTarget>)>;
 
-type Rendered = Or<(
-    Simulated,
-    With<Interpolated>,
-)>;
+type Rendered = Or<(Simulated, With<Interpolated>)>;
 
 fn add_player_gameplay_components(
     mut commands: Commands,

@@ -2,7 +2,8 @@
 use crate::{
     launch_options::{ClientLaunchOptions, ServerLaunchOptions, SharedLaunchOptions},
     launch_options::{
-        SerializableClientLaunchOptions, SerializableServerLaunchOptions, SerializableSharedLaunchOptions,
+        SerializableClientLaunchOptions, SerializableServerLaunchOptions,
+        SerializableSharedLaunchOptions,
     },
 };
 use bevy::prelude::*;
@@ -11,21 +12,27 @@ use lightyear::{
     client::config::{ClientConfig, NetcodeConfig as ClientNetcodeConfig},
     connection::client::NetConfig as ClientNetConfig,
     prelude::{
+        LinkConditionerConfig, SharedConfig, TickConfig,
         client::{
             Authentication, ClientTransport, InterpolationConfig, IoConfig as ClientIoConfig,
             PredictionConfig,
-        }, server::{
+        },
+        server::{
             Identity, IoConfig as ServerIoConfig, NetConfig as ServerNetConfig, ServerTransport,
-        }, LinkConditionerConfig, SharedConfig, TickConfig
+        },
     },
     server::config::{NetcodeConfig as ServerNetcodeConfig, ServerConfig},
 };
 use mygame_client::app::build_client_app;
-use mygame_server::app::{build_server_app, ServerMode};
-use std::{
-    error::Error, fs, net::{IpAddr, Ipv4Addr, SocketAddr}, path::{Path, PathBuf}, time::Duration
-};
+use mygame_server::app::{ServerMode, build_server_app};
 use ron::de::from_str;
+use std::{
+    error::Error,
+    fs,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 const DEFAULT_CLIENT_CONFIG_PATH: &str = "./crates/mygame-launcher/options/client_options.ron";
 const DEFAULT_SERVER_CONFIG_PATH: &str = "./crates/mygame-launcher/options/server_options.ron";
@@ -63,7 +70,7 @@ enum Mode {
 
 fn load_shared_options(path: Option<PathBuf>) -> Option<SharedLaunchOptions> {
     let config_path = path.unwrap_or_else(|| PathBuf::from(DEFAULT_SHARED_CONFIG_PATH));
-    
+
     if !config_path.exists() {
         return None;
     }
@@ -71,25 +78,31 @@ fn load_shared_options(path: Option<PathBuf>) -> Option<SharedLaunchOptions> {
     let config_str = match fs::read_to_string(&config_path) {
         Ok(str) => str,
         Err(_) => {
-            println!("Warning: Failed to read shared config from {:?}, using defaults", config_path);
+            println!(
+                "Warning: Failed to read shared config from {:?}, using defaults",
+                config_path
+            );
             return None;
         }
     };
-    
+
     let serializable_config: SerializableSharedLaunchOptions = match from_str(&config_str) {
         Ok(config) => config,
         Err(e) => {
-            println!("Warning: Failed to parse shared config from {:?}: {}, using defaults", config_path, e);
+            println!(
+                "Warning: Failed to parse shared config from {:?}: {}, using defaults",
+                config_path, e
+            );
             return None;
         }
     };
-    
+
     Some(SharedLaunchOptions::from(serializable_config))
 }
 
 fn load_client_options(path: Option<PathBuf>) -> Option<ClientLaunchOptions> {
     let config_path = path.unwrap_or_else(|| PathBuf::from(DEFAULT_CLIENT_CONFIG_PATH));
-    
+
     if !config_path.exists() {
         return None;
     }
@@ -97,25 +110,31 @@ fn load_client_options(path: Option<PathBuf>) -> Option<ClientLaunchOptions> {
     let config_str = match fs::read_to_string(&config_path) {
         Ok(str) => str,
         Err(_) => {
-            println!("Warning: Failed to read client config from {:?}, using defaults", config_path);
+            println!(
+                "Warning: Failed to read client config from {:?}, using defaults",
+                config_path
+            );
             return None;
         }
     };
-    
+
     let serializable_config: SerializableClientLaunchOptions = match from_str(&config_str) {
         Ok(config) => config,
         Err(e) => {
-            println!("Warning: Failed to parse client config from {:?}: {}, using defaults", config_path, e);
+            println!(
+                "Warning: Failed to parse client config from {:?}: {}, using defaults",
+                config_path, e
+            );
             return None;
         }
     };
-    
+
     Some(ClientLaunchOptions::from(serializable_config))
 }
 
 fn load_server_options(path: Option<PathBuf>) -> Option<ServerLaunchOptions> {
     let config_path = path.unwrap_or_else(|| PathBuf::from(DEFAULT_SERVER_CONFIG_PATH));
-    
+
     if !config_path.exists() {
         return None;
     }
@@ -123,28 +142,34 @@ fn load_server_options(path: Option<PathBuf>) -> Option<ServerLaunchOptions> {
     let config_str = match fs::read_to_string(&config_path) {
         Ok(str) => str,
         Err(_) => {
-            println!("Warning: Failed to read server config from {:?}, using defaults", config_path);
+            println!(
+                "Warning: Failed to read server config from {:?}, using defaults",
+                config_path
+            );
             return None;
         }
     };
-    
+
     let serializable_config: SerializableServerLaunchOptions = match from_str(&config_str) {
         Ok(config) => config,
         Err(e) => {
-            println!("Warning: Failed to parse server config from {:?}: {}, using defaults", config_path, e);
+            println!(
+                "Warning: Failed to parse server config from {:?}: {}, using defaults",
+                config_path, e
+            );
             return None;
         }
     };
-    
+
     Some(ServerLaunchOptions::from(serializable_config))
 }
 
 pub fn run() {
     let cli = Cli::parse();
 
-    let shared_launch_options = load_shared_options(cli.shared_config)
-        .unwrap_or(SharedLaunchOptions::default());
-    
+    let shared_launch_options =
+        load_shared_options(cli.shared_config).unwrap_or(SharedLaunchOptions::default());
+
     let shared_config = SharedConfig {
         server_replication_send_interval: shared_launch_options.server_replication_send_interval,
         client_replication_send_interval: shared_launch_options.client_replication_send_interval,
@@ -163,23 +188,22 @@ pub fn run() {
                 )
             }
 
-            let client_launch_options = load_client_options(cli.client_config)
-                .unwrap_or(ClientLaunchOptions::default());
+            let client_launch_options =
+                load_client_options(cli.client_config).unwrap_or(ClientLaunchOptions::default());
 
-            let mut server_launch_options = load_server_options(cli.server_config)
-                .unwrap_or(ServerLaunchOptions::default());
-            
+            let mut server_launch_options =
+                load_server_options(cli.server_config).unwrap_or(ServerLaunchOptions::default());
+
             // Always set server to headless in client mode
             server_launch_options.headless = true;
 
             let (from_server_send, from_server_recv) = crossbeam_channel::unbounded();
             let (to_server_send, to_server_recv) = crossbeam_channel::unbounded();
 
-            let transport_config =
-                ClientIoConfig::from_transport(ClientTransport::LocalChannel {
-                    recv: from_server_recv.clone(),
-                    send: to_server_send.clone(),
-                });
+            let transport_config = ClientIoConfig::from_transport(ClientTransport::LocalChannel {
+                recv: from_server_recv.clone(),
+                send: to_server_send.clone(),
+            });
 
             let auth = Authentication::Manual {
                 server_addr: SocketAddr::new(
@@ -202,9 +226,8 @@ pub fn run() {
                     },
                     io: transport_config,
                 },
-                prediction: PredictionConfig::default().with_correction_ticks_factor(
-                    client_launch_options.correction_ticks_factor,
-                ),
+                prediction: PredictionConfig::default()
+                    .with_correction_ticks_factor(client_launch_options.correction_ticks_factor),
                 interpolation: InterpolationConfig {
                     min_delay: client_launch_options.min_delay,
                     send_interval_ratio: 0.,
@@ -270,10 +293,10 @@ pub fn run() {
             build_client_app(client_config, development_asset_path, server_config).run();
         }
         Mode::Server => {
-            let server_launch_options = load_server_options(cli.server_config)
-                .unwrap_or(ServerLaunchOptions::default());
-            
-            let headless = cli.headless  || server_launch_options.headless;
+            let server_launch_options =
+                load_server_options(cli.server_config).unwrap_or(ServerLaunchOptions::default());
+
+            let headless = cli.headless || server_launch_options.headless;
 
             let server_netcode_config = ServerNetcodeConfig::default()
                 .with_protocol_id(shared_launch_options.protocol_id)
@@ -337,14 +360,15 @@ pub fn run() {
     }
 }
 
-pub fn load_certificate_from_files(cert_path: &Path, key_path: &Path) -> Result<Identity, Box<dyn Error>> {
+pub fn load_certificate_from_files(
+    cert_path: &Path,
+    key_path: &Path,
+) -> Result<Identity, Box<dyn Error>> {
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_io()
         .build()?;
-    
-    let identity = rt.block_on(async {
-        Identity::load_pemfiles(cert_path, key_path).await
-    })?;
-    
+
+    let identity = rt.block_on(async { Identity::load_pemfiles(cert_path, key_path).await })?;
+
     Ok(identity)
 }

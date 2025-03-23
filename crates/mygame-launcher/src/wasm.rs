@@ -1,9 +1,7 @@
 #[cfg(target_family = "wasm")]
 use crate::{
     launch_options::{ClientLaunchOptions, SharedLaunchOptions},
-    launch_options::{
-        SerializableClientLaunchOptions, SerializableSharedLaunchOptions,
-    },
+    launch_options::{SerializableClientLaunchOptions, SerializableSharedLaunchOptions},
 };
 use bevy::prelude::*;
 use lightyear::{

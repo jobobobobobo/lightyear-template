@@ -3,13 +3,19 @@ use bevy::prelude::*;
 use lightyear::prelude::{client::ClientCommandsExt, *};
 use mygame_assets::AssetState;
 use mygame_common::level::LoadLevelRequest;
-use mygame_protocol::{component::Player, message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable}};
+use mygame_protocol::{
+    component::Player,
+    message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable},
+};
 
 pub struct ReplicationPlugin;
 
 impl Plugin for ReplicationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, on_server_welcome.run_if(in_state(GameState::Connecting)));
+        app.add_systems(
+            Update,
+            on_server_welcome.run_if(in_state(GameState::Connecting)),
+        );
         app.add_systems(Update, await_spawn.run_if(in_state(GameState::Spawning)));
         app.add_systems(OnEnter(AssetState::Loaded), on_assets_loaded);
     }
@@ -43,11 +49,9 @@ fn on_server_welcome(
     }
 }
 
-fn await_spawn(
-    mut commands: Commands,
-    q_spawned_player: Query<Entity, Added<Player>>,
-) {
+fn await_spawn(mut commands: Commands, q_spawned_player: Query<Entity, Added<Player>>) {
     if !q_spawned_player.is_empty() {
+        // TODO: Check that it's actually the local player that got added
         commands.set_state(GameState::Playing);
     }
 }

@@ -56,11 +56,13 @@ fn on_enter_load_level(
     mut level_assets: ResMut<LevelAssets>,
     mut global_assets: ResMut<GlobalAssets>,
 ) {
-    global_assets.character = asset_server.load(GltfAssetLabel::Scene(0).from_asset("scenes/example_character.glb"));
+    global_assets.character =
+        asset_server.load(GltfAssetLabel::Scene(0).from_asset("scenes/example_character.glb"));
 
     match **level_to_load {
         Level::Example => {
-            level_assets.example_level = asset_server.load(GltfAssetLabel::Scene(0).from_asset("scenes/example_environment.glb"));
+            level_assets.example_level = asset_server
+                .load(GltfAssetLabel::Scene(0).from_asset("scenes/example_environment.glb"));
 
             loading_assets
                 .handles
@@ -107,19 +109,20 @@ fn postprocess_assets(
         Level::Example => {
             if let Some(scene) = scenes.get_mut(&level_assets.example_level) {
                 let mut entities_to_process = Vec::new();
-                
+
                 for entity_ref in scene.world.iter_entities() {
                     let entity = entity_ref.id();
                     if let Some(mesh_handle) = scene.world.get::<Mesh3d>(entity) {
                         entities_to_process.push((entity, mesh_handle.clone()));
                     }
                 }
-                
+
                 for (entity, mesh_handle) in entities_to_process {
                     if let Some(mesh) = meshes.get(&mesh_handle) {
-                        scene.world.entity_mut(entity).insert(
-                            ColliderConstructor::TrimeshFromMesh,
-                        );
+                        scene
+                            .world
+                            .entity_mut(entity)
+                            .insert(ColliderConstructor::TrimeshFromMesh);
                     }
                 }
             }

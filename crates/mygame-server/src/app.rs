@@ -10,10 +10,14 @@ use bevy::{
     pbr::PbrPlugin,
     prelude::*,
     render::{
-        camera::CameraPlugin, mesh::skinning::SkinnedMeshInverseBindposes, settings::{RenderCreation, WgpuSettings}, RenderPlugin as BevyRenderPlugin
+        RenderPlugin as BevyRenderPlugin,
+        camera::CameraPlugin,
+        mesh::skinning::SkinnedMeshInverseBindposes,
+        settings::{RenderCreation, WgpuSettings},
     },
     scene::ScenePlugin,
-    state::app::StatesPlugin, window::ExitCondition,
+    state::app::StatesPlugin,
+    window::ExitCondition,
 };
 use lightyear::{
     prelude::*,
@@ -40,18 +44,13 @@ pub fn build_server_app(server_config: ServerConfig, asset_path: String, mode: S
 
     match mode {
         ServerMode::Windowed => {
-            app.add_plugins((
-                DefaultPlugins.build().set(asset_plugin),
-                RenderPlugin,
-            ));
-        },
+            app.add_plugins((DefaultPlugins.build().set(asset_plugin), RenderPlugin));
+        }
         _ => {
             app.add_plugins((
-                MinimalPlugins
-                    .build()
-                    .set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(
-                        1.0 / 100.0,
-                    ))),
+                MinimalPlugins.build().set(ScheduleRunnerPlugin::run_loop(
+                    Duration::from_secs_f64(1.0 / 100.0),
+                )),
                 asset_plugin,
                 WindowPlugin {
                     primary_window: None,
@@ -78,11 +77,10 @@ pub fn build_server_app(server_config: ServerConfig, asset_path: String, mode: S
             if mode != ServerMode::ClientHost {
                 app.add_plugins(LogPlugin::default());
             }
-            
+
             app.init_asset::<Image>(); // or add ImagePlugin
         }
     };
-
 
     app.add_plugins(ServerPlugins {
         config: server_config,

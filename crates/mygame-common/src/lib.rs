@@ -1,7 +1,7 @@
-use avian3d::{prelude::PhysicsInterpolationPlugin, PhysicsPlugins};
+use avian3d::{PhysicsPlugins, prelude::PhysicsInterpolationPlugin};
 use bevy::prelude::*;
-use mygame_protocol::ProtocolPlugin;
 use mygame_assets::AssetPlugin;
+use mygame_protocol::ProtocolPlugin;
 
 pub mod level;
 pub mod player;

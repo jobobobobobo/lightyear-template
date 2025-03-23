@@ -10,11 +10,10 @@ mod camera;
 // It goes in this plugin
 impl Plugin for RenderPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugins((
-                camera:: CameraPlugin,
-                PhysicsDebugPlugin::default(),
-                WorldInspectorPlugin::default(),
-            ));
+        app.add_plugins((
+            camera::CameraPlugin,
+            PhysicsDebugPlugin::default(),
+            WorldInspectorPlugin::default(),
+        ));
     }
 }

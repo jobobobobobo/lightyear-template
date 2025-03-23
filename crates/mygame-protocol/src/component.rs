@@ -1,7 +1,12 @@
 use avian3d::prelude::*;
 use bevy::prelude::*;
-use lightyear::{prelude::{client::{ComponentSyncMode, LerpFn}, *}, utils::bevy::TransformLinearInterpolation};
-
+use lightyear::{
+    prelude::{
+        client::{ComponentSyncMode, LerpFn},
+        *,
+    },
+    utils::bevy::TransformLinearInterpolation,
+};
 
 #[derive(Component, Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Player(pub ClientId);
@@ -10,7 +15,7 @@ pub struct Player(pub ClientId);
 pub enum Level {
     #[default]
     Void,
-    Example
+    Example,
 }
 
 pub fn register_components(app: &mut App) {

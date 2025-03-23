@@ -1,12 +1,12 @@
+use lightyear::prelude::{LinkConditionerConfig, TickConfig, server::ServerTransport};
 use serde::{Deserialize, Serialize};
 use std::net::Ipv4Addr;
 use std::time::Duration;
-use lightyear::prelude::{server::ServerTransport, LinkConditionerConfig, TickConfig};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SerializableLinkConditionerConfig {
     pub incoming_latency_ms: u64,
-    pub incoming_jitter_ms: u64, 
+    pub incoming_jitter_ms: u64,
     pub incoming_loss: f32,
 }
 
@@ -65,8 +65,12 @@ impl From<SharedLaunchOptions> for SerializableSharedLaunchOptions {
             protocol_id: options.protocol_id,
             key: options.key,
             simulation_update_frequency_ms: options.simulation_update_frequency.as_millis() as u64,
-            server_replication_send_interval_ms: options.server_replication_send_interval.as_millis() as u64,
-            client_replication_send_interval_ms: options.client_replication_send_interval.as_millis() as u64,
+            server_replication_send_interval_ms: options
+                .server_replication_send_interval
+                .as_millis() as u64,
+            client_replication_send_interval_ms: options
+                .client_replication_send_interval
+                .as_millis() as u64,
         }
     }
 }
@@ -76,9 +80,15 @@ impl From<SerializableSharedLaunchOptions> for SharedLaunchOptions {
         Self {
             protocol_id: options.protocol_id,
             key: options.key,
-            simulation_update_frequency: Duration::from_millis(options.simulation_update_frequency_ms),
-            server_replication_send_interval: Duration::from_millis(options.server_replication_send_interval_ms),
-            client_replication_send_interval: Duration::from_millis(options.client_replication_send_interval_ms),
+            simulation_update_frequency: Duration::from_millis(
+                options.simulation_update_frequency_ms,
+            ),
+            server_replication_send_interval: Duration::from_millis(
+                options.server_replication_send_interval_ms,
+            ),
+            client_replication_send_interval: Duration::from_millis(
+                options.client_replication_send_interval_ms,
+            ),
         }
     }
 }
@@ -143,9 +153,15 @@ impl From<ClientLaunchOptions> for SerializableClientLaunchOptions {
 impl From<SerializableClientLaunchOptions> for ClientLaunchOptions {
     fn from(serializable: SerializableClientLaunchOptions) -> Self {
         Self {
-            listen_addr: serializable.listen_addr.parse().unwrap_or(Ipv4Addr::LOCALHOST),
+            listen_addr: serializable
+                .listen_addr
+                .parse()
+                .unwrap_or(Ipv4Addr::LOCALHOST),
             listen_port: serializable.listen_port,
-            server_addr: serializable.server_addr.parse().unwrap_or(Ipv4Addr::LOCALHOST),
+            server_addr: serializable
+                .server_addr
+                .parse()
+                .unwrap_or(Ipv4Addr::LOCALHOST),
             server_port: serializable.server_port,
             conditioner: LinkConditionerConfig::from(serializable.conditioner),
             correction_ticks_factor: serializable.correction_ticks_factor,

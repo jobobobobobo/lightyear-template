@@ -1,8 +1,15 @@
 use avian3d::prelude::{Position, Rotation};
 use bevy::prelude::*;
-use lightyear::prelude::{server::{ControlledBy, Lifetime, ServerCommandsExt, SyncTarget}, FromClients, MessageSend, NetworkTarget, ReplicateHierarchy, Replicating, ServerConnectEvent, ServerConnectionManager, ServerDisconnectEvent, ServerReplicate};
+use lightyear::prelude::{
+    FromClients, MessageSend, NetworkTarget, ReplicateHierarchy, Replicating, ServerConnectEvent,
+    ServerConnectionManager, ServerDisconnectEvent, ServerReplicate,
+    server::{ControlledBy, Lifetime, ServerCommandsExt, SyncTarget},
+};
 use mygame_common::level::CurrentLevel;
-use mygame_protocol::{component::{Level, Player}, message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable}};
+use mygame_protocol::{
+    component::{Level, Player},
+    message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable},
+};
 
 use crate::network::REPLICATION_GROUP_PREDICTED;
 
@@ -45,7 +52,7 @@ fn on_client_load_complete(
                         ..default()
                     },
                     ..default()
-                }
+                },
             ));
         } else {
             warn!(

@@ -68,7 +68,7 @@ fn spawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<Ma
                 .observe(|_click: Trigger<Pointer<Click>>, mut commands: Commands| {
                     commands.set_state(GameState::Connecting);
                 });
-            
+
             #[cfg(feature = "host")]
             child_builder
                 .spawn(Text::new("Host"))
