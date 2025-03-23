@@ -102,7 +102,6 @@ pub fn run() {
     console_error_panic_hook::set_once();
     console::log_1(&"WASM initializing...".into());
 
-    // Start the async initialization
     wasm_bindgen_futures::spawn_local(async {
         if let Err(e) = initialize_game().await {
             console::log_1(&format!("Failed to initialize game: {:?}", e).into());
@@ -113,11 +112,9 @@ pub fn run() {
 async fn initialize_game() -> Result<(), JsValue> {
     let wasm_asset_path = String::from("./assets");
 
-    // Load configurations asynchronously
     let client_launch_options = load_client_config().await?;
     let shared_launch_options = load_shared_config().await?;
 
-    // Verify we have a certificate digest
     let certificate_digest = match &client_launch_options.certificate_digest {
         Some(digest) => {
             console::log_2(
