@@ -5,8 +5,10 @@ use lightyear::prelude::{
     client::{Confirmed, Interpolated, Predicted},
     server::ReplicationTarget,
 };
-use mygame_assets::{AssetState, assets::GlobalAssets};
+use mygame_assets::{LevelState, assets::GlobalAssets};
 use mygame_protocol::{component::Player, input::NetworkedInput};
+
+use crate::{Rendered, Simulated};
 
 pub struct PlayerPlugin;
 
@@ -14,16 +16,12 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (add_player_gameplay_components).run_if(in_state(AssetState::Loaded)),
+            (add_player_gameplay_components).run_if(in_state(LevelState::Loaded)),
         );
 
         app.add_systems(FixedUpdate, move_player);
     }
 }
-
-type Simulated = Or<(With<Predicted>, With<ReplicationTarget>)>;
-
-type Rendered = Or<(Simulated, With<Interpolated>)>;
 
 fn add_player_gameplay_components(
     mut commands: Commands,

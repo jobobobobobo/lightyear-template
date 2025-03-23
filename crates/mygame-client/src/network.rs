@@ -1,17 +1,38 @@
 use bevy::prelude::*;
-use lightyear::prelude::{ClientConnectEvent, ClientDisconnectEvent, client::ClientCommandsExt};
+use lightyear::{
+    client::config::ClientConfig,
+    prelude::{ClientConnectEvent, ClientDisconnectEvent, client::ClientCommandsExt},
+};
 
-use crate::app::GameState;
+use crate::app::{ClientHostConfig, GameState};
 
 pub struct NetworkPlugin;
 
 impl Plugin for NetworkPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Connecting), connect_to_server);
+        app.add_systems(
+            OnEnter(GameState::ConnectingRemote),
+            connect_to_remote_server,
+        );
+        app.add_systems(OnEnter(GameState::ConnectingSelf), connect_to_local_server);
     }
 }
 
-fn connect_to_server(mut commands: Commands) {
+fn connect_to_remote_server(
+    mut commands: Commands,
+    host_config: ResMut<ClientHostConfig>,
+    mut client_config: ResMut<ClientConfig>,
+) {
+    *client_config = host_config.client_remote_config.clone();
+    commands.connect_client();
+}
+
+fn connect_to_local_server(
+    mut commands: Commands,
+    host_config: ResMut<ClientHostConfig>,
+    mut client_config: ResMut<ClientConfig>,
+) {
+    *client_config = host_config.client_local_config.clone();
     commands.connect_client();
 }
 

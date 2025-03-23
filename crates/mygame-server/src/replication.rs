@@ -5,10 +5,10 @@ use lightyear::prelude::{
     ServerConnectionManager, ServerDisconnectEvent, ServerReplicate,
     server::{ControlledBy, Lifetime, ServerCommandsExt, SyncTarget},
 };
-use mygame_common::level::CurrentLevel;
+use mygame_assets::CurrentLevel;
 use mygame_protocol::{
-    component::{Level, Player},
-    message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable},
+    component::Player,
+    message::{ClientLevelLoadComplete, Level, ServerWelcome, UnorderedReliable},
 };
 
 use crate::network::REPLICATION_GROUP_PREDICTED;

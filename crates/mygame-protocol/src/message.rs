@@ -1,7 +1,12 @@
 use bevy::prelude::*;
 use lightyear::prelude::*;
 
-use crate::component::Level;
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash, Copy, Default)]
+pub enum Level {
+    #[default]
+    Void, // No level is loaded
+    Example,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct ServerWelcome {

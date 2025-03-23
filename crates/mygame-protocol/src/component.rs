@@ -11,13 +11,6 @@ use lightyear::{
 #[derive(Component, Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Player(pub ClientId);
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash, Copy, Default)]
-pub enum Level {
-    #[default]
-    Void,
-    Example,
-}
-
 pub fn register_components(app: &mut App) {
     app.register_component::<Player>(ChannelDirection::ServerToClient)
         .add_prediction(ComponentSyncMode::Once)

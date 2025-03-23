@@ -68,8 +68,12 @@ enum Mode {
     Server,
 }
 
-fn load_shared_options(path: Option<PathBuf>) -> Option<SharedLaunchOptions> {
-    let config_path = path.unwrap_or_else(|| PathBuf::from(DEFAULT_SHARED_CONFIG_PATH));
+fn load_config<T, S>(path: Option<PathBuf>, default_path: &str) -> Option<T>
+where
+    T: From<S>,
+    S: serde::de::DeserializeOwned,
+{
+    let config_path = path.unwrap_or_else(|| PathBuf::from(default_path));
 
     if !config_path.exists() {
         return None;
@@ -79,96 +83,55 @@ fn load_shared_options(path: Option<PathBuf>) -> Option<SharedLaunchOptions> {
         Ok(str) => str,
         Err(_) => {
             println!(
-                "Warning: Failed to read shared config from {:?}, using defaults",
+                "Warning: Failed to read config from {:?}, using defaults",
                 config_path
             );
             return None;
         }
     };
 
-    let serializable_config: SerializableSharedLaunchOptions = match from_str(&config_str) {
+    let serializable_config: S = match from_str(&config_str) {
         Ok(config) => config,
         Err(e) => {
             println!(
-                "Warning: Failed to parse shared config from {:?}: {}, using defaults",
+                "Warning: Failed to parse config from {:?}: {}, using defaults",
                 config_path, e
             );
             return None;
         }
     };
 
-    Some(SharedLaunchOptions::from(serializable_config))
+    Some(T::from(serializable_config))
 }
 
-fn load_client_options(path: Option<PathBuf>) -> Option<ClientLaunchOptions> {
-    let config_path = path.unwrap_or_else(|| PathBuf::from(DEFAULT_CLIENT_CONFIG_PATH));
-
-    if !config_path.exists() {
-        return None;
-    }
-
-    let config_str = match fs::read_to_string(&config_path) {
-        Ok(str) => str,
-        Err(_) => {
-            println!(
-                "Warning: Failed to read client config from {:?}, using defaults",
-                config_path
-            );
-            return None;
-        }
-    };
-
-    let serializable_config: SerializableClientLaunchOptions = match from_str(&config_str) {
-        Ok(config) => config,
-        Err(e) => {
-            println!(
-                "Warning: Failed to parse client config from {:?}: {}, using defaults",
-                config_path, e
-            );
-            return None;
-        }
-    };
-
-    Some(ClientLaunchOptions::from(serializable_config))
+fn load_shared_options(path: Option<PathBuf>) -> SharedLaunchOptions {
+    load_config::<SharedLaunchOptions, SerializableSharedLaunchOptions>(
+        path,
+        DEFAULT_SHARED_CONFIG_PATH,
+    )
+    .unwrap_or(SharedLaunchOptions::default())
 }
 
-fn load_server_options(path: Option<PathBuf>) -> Option<ServerLaunchOptions> {
-    let config_path = path.unwrap_or_else(|| PathBuf::from(DEFAULT_SERVER_CONFIG_PATH));
+fn load_client_options(path: Option<PathBuf>) -> ClientLaunchOptions {
+    load_config::<ClientLaunchOptions, SerializableClientLaunchOptions>(
+        path,
+        DEFAULT_CLIENT_CONFIG_PATH,
+    )
+    .unwrap_or(ClientLaunchOptions::default())
+}
 
-    if !config_path.exists() {
-        return None;
-    }
-
-    let config_str = match fs::read_to_string(&config_path) {
-        Ok(str) => str,
-        Err(_) => {
-            println!(
-                "Warning: Failed to read server config from {:?}, using defaults",
-                config_path
-            );
-            return None;
-        }
-    };
-
-    let serializable_config: SerializableServerLaunchOptions = match from_str(&config_str) {
-        Ok(config) => config,
-        Err(e) => {
-            println!(
-                "Warning: Failed to parse server config from {:?}: {}, using defaults",
-                config_path, e
-            );
-            return None;
-        }
-    };
-
-    Some(ServerLaunchOptions::from(serializable_config))
+fn load_server_options(path: Option<PathBuf>) -> ServerLaunchOptions {
+    load_config::<ServerLaunchOptions, SerializableServerLaunchOptions>(
+        path,
+        DEFAULT_SERVER_CONFIG_PATH,
+    )
+    .unwrap_or(ServerLaunchOptions::default())
 }
 
 pub fn run() {
     let cli = Cli::parse();
 
-    let shared_launch_options =
-        load_shared_options(cli.shared_config).unwrap_or(SharedLaunchOptions::default());
+    let shared_launch_options = load_shared_options(cli.shared_config);
 
     let shared_config = SharedConfig {
         server_replication_send_interval: shared_launch_options.server_replication_send_interval,
@@ -188,11 +151,9 @@ pub fn run() {
                 )
             }
 
-            let client_launch_options =
-                load_client_options(cli.client_config).unwrap_or(ClientLaunchOptions::default());
+            let client_launch_options = load_client_options(cli.client_config);
 
-            let mut server_launch_options =
-                load_server_options(cli.server_config).unwrap_or(ServerLaunchOptions::default());
+            let mut server_launch_options = load_server_options(cli.server_config);
 
             // Always set server to headless in client mode
             server_launch_options.headless = true;
@@ -200,12 +161,48 @@ pub fn run() {
             let (from_server_send, from_server_recv) = crossbeam_channel::unbounded();
             let (to_server_send, to_server_recv) = crossbeam_channel::unbounded();
 
-            let transport_config = ClientIoConfig::from_transport(ClientTransport::LocalChannel {
-                recv: from_server_recv.clone(),
-                send: to_server_send.clone(),
-            });
+            let local_transport_config =
+                ClientIoConfig::from_transport(ClientTransport::LocalChannel {
+                    recv: from_server_recv.clone(),
+                    send: to_server_send.clone(),
+                });
 
-            let auth = Authentication::Manual {
+            let local_auth = Authentication::Manual {
+                server_addr: SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 0),
+                client_id: cli.client_id,
+                private_key: shared_launch_options.key,
+                protocol_id: shared_launch_options.protocol_id,
+            };
+
+            let local_netcode = ClientNetConfig::Netcode {
+                auth: local_auth,
+                config: ClientNetcodeConfig {
+                    token_expire_secs: -1,
+                    client_timeout_secs: 5,
+                    ..default()
+                },
+                io: local_transport_config,
+            };
+
+            let local_client_config = ClientConfig {
+                shared: shared_config.clone(),
+                net: local_netcode,
+                prediction: PredictionConfig::default()
+                    .with_correction_ticks_factor(client_launch_options.correction_ticks_factor),
+                interpolation: InterpolationConfig {
+                    min_delay: client_launch_options.min_delay,
+                    send_interval_ratio: 0.,
+                },
+                ..default()
+            };
+
+            let remote_transport_config =
+                ClientIoConfig::from_transport(ClientTransport::UdpSocket(SocketAddr::new(
+                    IpAddr::V4(client_launch_options.listen_addr),
+                    client_launch_options.listen_port,
+                )));
+
+            let remote_auth = Authentication::Manual {
                 server_addr: SocketAddr::new(
                     IpAddr::V4(client_launch_options.server_addr),
                     client_launch_options.server_port,
@@ -215,17 +212,19 @@ pub fn run() {
                 protocol_id: shared_launch_options.protocol_id,
             };
 
-            let client_config = ClientConfig {
-                shared: shared_config.clone(),
-                net: ClientNetConfig::Netcode {
-                    auth,
-                    config: ClientNetcodeConfig {
-                        token_expire_secs: -1,
-                        client_timeout_secs: 5,
-                        ..default()
-                    },
-                    io: transport_config,
+            let remote_netcode = ClientNetConfig::Netcode {
+                auth: remote_auth,
+                config: ClientNetcodeConfig {
+                    token_expire_secs: -1,
+                    client_timeout_secs: 5,
+                    ..default()
                 },
+                io: remote_transport_config,
+            };
+
+            let remote_client_config = ClientConfig {
+                shared: shared_config.clone(),
+                net: remote_netcode,
                 prediction: PredictionConfig::default()
                     .with_correction_ticks_factor(client_launch_options.correction_ticks_factor),
                 interpolation: InterpolationConfig {
@@ -290,11 +289,16 @@ pub fn run() {
                 ..default()
             };
 
-            build_client_app(client_config, development_asset_path, server_config).run();
+            build_client_app(
+                remote_client_config,
+                local_client_config,
+                development_asset_path,
+                server_config,
+            )
+            .run();
         }
         Mode::Server => {
-            let server_launch_options =
-                load_server_options(cli.server_config).unwrap_or(ServerLaunchOptions::default());
+            let server_launch_options = load_server_options(cli.server_config);
 
             let headless = cli.headless || server_launch_options.headless;
 

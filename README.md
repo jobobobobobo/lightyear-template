@@ -37,6 +37,8 @@ Configuration can be modified in `crates/mygame-launcher/options` and extended i
 
 ## Running the WASM client
 
+Must modify `crates/mygame-launcher/options/web_client_options.ron` to include the certificate digest for the certs specified in `server_options.ron`.
+
 ```
 trunk --config ./crates/mygame-launcher/Trunk.toml serve
 ```

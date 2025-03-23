@@ -135,7 +135,6 @@ async fn initialize_game() -> Result<(), JsValue> {
         &JsValue::from_f64(client_id as f64),
     );
 
-    // Create shared config from the loaded options
     let shared_config = SharedConfig {
         server_replication_send_interval: shared_launch_options.server_replication_send_interval,
         client_replication_send_interval: shared_launch_options.client_replication_send_interval,

@@ -1,11 +1,11 @@
 use assets::{GlobalAssets, LevelAssets};
-use avian3d::prelude::{Collider, ColliderConstructor};
+use avian3d::prelude::{Collider, ColliderConstructor, RigidBody};
 use bevy::{
     asset::{AssetPlugin as BevyAssetPlugin, LoadState},
     gltf::{GltfMesh, GltfPlugin},
     prelude::*,
 };
-use mygame_protocol::component::Level;
+use mygame_protocol::message::Level;
 
 pub mod assets;
 
@@ -13,24 +13,25 @@ pub struct AssetPlugin;
 
 impl Plugin for AssetPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AssetState::Loading), on_enter_load_level)
+        app.add_systems(Update, on_level_change)
             .add_systems(
                 Update,
-                check_asset_loading.run_if(in_state(AssetState::Loading)),
+                check_asset_loading.run_if(in_state(LevelState::Loading)),
             )
-            .add_systems(OnEnter(AssetState::Postprocess), postprocess_assets)
-            .init_state::<AssetState>()
+            .add_systems(OnEnter(LevelState::Postprocess), postprocess_assets)
+            .init_state::<LevelState>()
+            .init_resource::<CurrentLevel>()
             .init_resource::<LoadingAssets>()
-            .init_resource::<LevelToLoad>()
             .init_resource::<LevelAssets>()
-            .init_resource::<GlobalAssets>();
+            .init_resource::<GlobalAssets>()
+            .register_type::<Geometry>();
     }
 }
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum AssetState {
+pub enum LevelState {
     #[default]
-    Idle,
+    Unloaded,
     Loading,
     Postprocess,
     Loaded,
@@ -42,24 +43,32 @@ pub struct LoadingAssets {
     pub handles: Vec<UntypedHandle>,
 }
 
-/// External systems are responsible for setting LevelToLoad
 #[derive(Resource, Clone, Deref, DerefMut, Default)]
-pub struct LevelToLoad(pub Level);
+pub struct CurrentLevel(pub Level);
 
-/// When entering the "Loading" AssetState, load the assets required
-/// for the LevelToLoad. Queue the resultant Handles to be polled for
-/// completion in `check_asset_loading`
-fn on_enter_load_level(
+/// Tag component to let external systems identify "what" kind of thing got loaded
+#[derive(Component, Reflect)]
+#[reflect(Component)]
+pub struct Geometry;
+
+/// When CurrentLevel changes, load the assets required.
+/// Queue the resultant Handles to be polled for completion in `check_asset_loading`
+fn on_level_change(
     asset_server: Res<AssetServer>,
-    level_to_load: Res<LevelToLoad>,
+    current_level: Res<CurrentLevel>,
     mut loading_assets: ResMut<LoadingAssets>,
     mut level_assets: ResMut<LevelAssets>,
     mut global_assets: ResMut<GlobalAssets>,
+    mut next_level_state: ResMut<NextState<LevelState>>,
 ) {
+    if !current_level.is_changed() {
+        return;
+    }
+
     global_assets.character =
         asset_server.load(GltfAssetLabel::Scene(0).from_asset("scenes/example_character.glb"));
 
-    match **level_to_load {
+    match **current_level {
         Level::Example => {
             level_assets.example_level = asset_server
                 .load(GltfAssetLabel::Scene(0).from_asset("scenes/example_environment.glb"));
@@ -70,6 +79,8 @@ fn on_enter_load_level(
         }
         Level::Void => {}
     }
+
+    next_level_state.set(LevelState::Loading);
 }
 
 /// Sets the AssetState to Loaded once all queued Handles have finished loading
@@ -77,7 +88,7 @@ fn on_enter_load_level(
 fn check_asset_loading(
     asset_server: Res<AssetServer>,
     mut loading_assets: ResMut<LoadingAssets>,
-    mut next_state: ResMut<NextState<AssetState>>,
+    mut next_state: ResMut<NextState<LevelState>>,
 ) {
     let all_loaded =
         loading_assets
@@ -90,7 +101,7 @@ fn check_asset_loading(
 
     if all_loaded {
         info!("All assets loaded successfully");
-        next_state.set(AssetState::Postprocess);
+        next_state.set(LevelState::Postprocess);
         loading_assets.handles.clear();
     }
 }
@@ -100,13 +111,15 @@ fn check_asset_loading(
 ///  to actually construct the colliders here, rather than defer them with ColliderConstructor
 fn postprocess_assets(
     mut commands: Commands,
-    level_to_load: Res<LevelToLoad>,
+    current_level: Res<CurrentLevel>,
     mut scenes: ResMut<Assets<Scene>>,
     level_assets: ResMut<LevelAssets>,
     meshes: Res<Assets<Mesh>>,
 ) {
-    match **level_to_load {
+    match **current_level {
         Level::Example => {
+            // After the GLTF finishes loading, it's now a bevy Scene
+            // that contains a World we can mutate freely
             if let Some(scene) = scenes.get_mut(&level_assets.example_level) {
                 let mut entities_to_process = Vec::new();
 
@@ -122,14 +135,13 @@ fn postprocess_assets(
                         scene
                             .world
                             .entity_mut(entity)
-                            .insert(ColliderConstructor::TrimeshFromMesh);
+                            .insert((ColliderConstructor::TrimeshFromMesh, Geometry));
                     }
                 }
             }
         }
-        Level::Void => {
-            // Handle void level if needed
-        }
+        Level::Void => (),
     }
-    commands.set_state(AssetState::Loaded);
+
+    commands.set_state(LevelState::Loaded);
 }

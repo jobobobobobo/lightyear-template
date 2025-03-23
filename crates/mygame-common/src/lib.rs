@@ -1,5 +1,9 @@
 use avian3d::{PhysicsPlugins, prelude::PhysicsInterpolationPlugin};
 use bevy::prelude::*;
+use lightyear::prelude::{
+    client::{Interpolated, Predicted},
+    server::ReplicationTarget,
+};
 use mygame_assets::AssetPlugin;
 use mygame_protocol::ProtocolPlugin;
 
@@ -21,3 +25,6 @@ impl Plugin for CommonPlugin {
         ));
     }
 }
+
+type Simulated = Or<(With<Predicted>, With<ReplicationTarget>)>;
+type Rendered = Or<(Simulated, With<Interpolated>)>;

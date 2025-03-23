@@ -8,7 +8,10 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::MainMenu), spawn_main_menu_ui);
-        app.add_systems(OnEnter(GameState::Connecting), on_client_begin_connecting);
+        app.add_systems(
+            OnEnter(GameState::ConnectingRemote),
+            on_client_begin_connecting,
+        );
         app.add_systems(OnEnter(GameState::Loading), on_client_begin_loading);
         app.add_systems(OnEnter(GameState::Playing), despawn_main_menu_ui);
     }
@@ -66,7 +69,7 @@ fn spawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<Ma
                 ))
                 .insert(ConnectButton)
                 .observe(|_click: Trigger<Pointer<Click>>, mut commands: Commands| {
-                    commands.set_state(GameState::Connecting);
+                    commands.set_state(GameState::ConnectingRemote);
                 });
 
             #[cfg(feature = "host")]

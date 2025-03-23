@@ -1,8 +1,7 @@
 use crate::app::GameState;
 use bevy::prelude::*;
 use lightyear::prelude::{client::ClientCommandsExt, *};
-use mygame_assets::AssetState;
-use mygame_common::level::LoadLevelRequest;
+use mygame_assets::{CurrentLevel, LevelState};
 use mygame_protocol::{
     component::Player,
     message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable},
@@ -14,10 +13,10 @@ impl Plugin for ReplicationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            on_server_welcome.run_if(in_state(GameState::Connecting)),
+            on_server_welcome.run_if(in_state(GameState::ConnectingRemote)),
         );
         app.add_systems(Update, await_spawn.run_if(in_state(GameState::Spawning)));
-        app.add_systems(OnEnter(AssetState::Loaded), on_assets_loaded);
+        app.add_systems(OnEnter(LevelState::Loaded), on_assets_loaded);
     }
 }
 
@@ -36,16 +35,14 @@ fn on_assets_loaded(mut commands: Commands, mut client: ResMut<ClientConnectionM
 
 /// Respond to the welcome message from the server by initiating a load of the level requested
 fn on_server_welcome(
-    mut commands: Commands,
     mut server_welcome_events: ResMut<Events<ClientReceiveMessage<ServerWelcome>>>,
     game_state: Res<State<GameState>>,
+    mut current_level: ResMut<CurrentLevel>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     for ev in server_welcome_events.drain() {
         next_state.set(GameState::Loading);
-        commands.trigger(LoadLevelRequest {
-            level: ev.message.current_level,
-        });
+        current_level.0 = ev.message.current_level;
     }
 }
 

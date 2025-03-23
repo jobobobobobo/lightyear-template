@@ -33,8 +33,8 @@ impl SendApp {
 
 fn on_client_begin_hosting(
     mut commands: Commands,
+    host_config: ResMut<ClientHostConfig>,
     asset_path: Res<AssetPath>,
-    host_config: Res<ClientHostConfig>,
 ) {
     {
         let server_app = build_server_app(
@@ -47,5 +47,5 @@ fn on_client_begin_hosting(
         std::thread::spawn(move || send_server_app.run());
     }
 
-    commands.set_state(GameState::Connecting);
+    commands.set_state(GameState::ConnectingRemote);
 }
