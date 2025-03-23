@@ -12,7 +12,7 @@ use std::{
 };
 
 use crate::app::{AssetPath, ClientHostConfig, GameState};
-use mygame_server::app::build_server_app;
+use mygame_server::app::{ServerMode, build_server_app};
 
 pub struct HostPlugin;
 
@@ -37,7 +37,11 @@ fn on_client_begin_hosting(
     host_config: Res<ClientHostConfig>,
 ) {
     {
-        let server_app = build_server_app(host_config.server_config.clone(), asset_path.0.clone(), true);
+        let server_app = build_server_app(
+            host_config.server_config.clone(),
+            asset_path.0.clone(),
+            ServerMode::ClientHost,
+        );
 
         let mut send_server_app = SendApp(server_app);
         std::thread::spawn(move || send_server_app.run());

@@ -156,7 +156,7 @@ mod native_impl {
         server::config::{NetcodeConfig as ServerNetcodeConfig, ServerConfig},
     };
     use mygame_client::app::build_client_app;
-    use mygame_server::app::build_server_app;
+    use mygame_server::app::{build_server_app, ServerMode};
     use std::{
         net::{IpAddr, Ipv4Addr, SocketAddr},
         path::Path,
@@ -211,6 +211,25 @@ mod native_impl {
                     min_delay: Duration::from_millis(25),
                 };
 
+                // Everything but wasm always has the option to host on the client
+                let server_launch_options = ServerLaunchOptions {
+                    listen_addr: Ipv4Addr::LOCALHOST,
+                    udp_listen_port: 12025,
+                    webtransport_listen_port: 12026,
+                    headless: true,
+                    conditioner: LinkConditionerConfig {
+                        incoming_latency: Duration::from_millis(50),
+                        incoming_jitter: Duration::ZERO,
+                        incoming_loss: 0.0,
+                    },
+                    webtransport_cert_path: String::from(
+                        "./crates/mygame-launcher/web/certs/cert.pem",
+                    ),
+                    webtransport_key_path: String::from(
+                        "./crates/mygame-launcher/web/certs/key.pem",
+                    ),
+                };
+
                 let (from_server_send, from_server_recv) = crossbeam_channel::unbounded();
                 let (to_server_send, to_server_recv) = crossbeam_channel::unbounded();
 
@@ -252,52 +271,52 @@ mod native_impl {
                     ..default()
                 };
 
-                let server_link_conditioner = LinkConditionerConfig {
-                    // should be launch option
-                    incoming_latency: Duration::from_millis(50),
-                    incoming_jitter: Duration::ZERO,
-                    incoming_loss: 0.0,
-                };
-
                 let server_netcode_config = ServerNetcodeConfig::default()
                     .with_protocol_id(shared_launch_options.protocol_id)
                     .with_key(shared_launch_options.key);
 
                 let webtransport_identity = load_certs::load_certificate_from_files(
-                    Path::new(&String::from("./crates/mygame-launcher/web/certs/cert.pem")),
-                    Path::new(&String::from("./crates/mygame-launcher/web/certs/key.pem")),
+                    Path::new(&server_launch_options.webtransport_cert_path),
+                    Path::new(&server_launch_options.webtransport_key_path),
                 )
                 .unwrap();
 
-                // TODO: Can webtransport server work even on client host?
                 let net_configs = vec![
                     ServerNetConfig::Netcode {
                         // normal udp sockets for desktop
                         config: server_netcode_config.clone(),
                         io: ServerIoConfig::from_transport(ServerTransport::UdpSocket(
-                            (Ipv4Addr::LOCALHOST, 12025).into(),
+                            (
+                                server_launch_options.listen_addr,
+                                server_launch_options.udp_listen_port,
+                            )
+                                .into(),
                         ))
-                        .with_conditioner(server_link_conditioner.clone()),
+                        .with_conditioner(server_launch_options.conditioner.clone()),
                     },
                     ServerNetConfig::Netcode {
                         // channels, for client host
                         config: server_netcode_config.clone(),
                         io: ServerIoConfig::from_transport(ServerTransport::Channels {
                             channels: vec![(
-                                SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 12027),
+                                SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 12027), // port doesn't matter?
                                 to_server_recv,
                                 from_server_send,
                             )],
                         })
-                        .with_conditioner(server_link_conditioner.clone()),
+                        .with_conditioner(server_launch_options.conditioner.clone()),
                     },
                     ServerNetConfig::Netcode {
                         // webtransport
                         config: server_netcode_config.clone(),
                         io: ServerIoConfig::from_transport(ServerTransport::WebTransportServer {
-                            server_addr: SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 12026),
+                            server_addr: SocketAddr::new(
+                                IpAddr::V4(server_launch_options.listen_addr),
+                                server_launch_options.webtransport_listen_port,
+                            ),
                             certificate: webtransport_identity,
-                        }),
+                        })
+                        .with_conditioner(server_launch_options.conditioner.clone()),
                     },
                 ];
 
@@ -379,7 +398,13 @@ mod native_impl {
                     ..default()
                 };
 
-                build_server_app(server_config, development_asset_path, cli.headless).run();
+                let mode = if cli.headless {
+                    ServerMode::Headless
+                } else {
+                    ServerMode::Windowed
+                };
+
+                build_server_app(server_config, development_asset_path, mode).run();
             }
         }
     }
