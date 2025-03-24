@@ -3,7 +3,7 @@ use bevy::{
     log::{Level, LogPlugin},
     prelude::*,
 };
-use lightyear::prelude::client::NetConfig;
+use lightyear::prelude::client::{NetConfig, VisualInterpolationPlugin};
 use lightyear::{
     client::{config::ClientConfig, plugin::ClientPlugins},
     server::config::ServerConfig,
@@ -13,7 +13,7 @@ use mygame_render::RenderPlugin;
 
 use crate::game_state::{GameLifecyclePlugin, GameState};
 use crate::input::InputPlugin;
-use crate::{network::NetworkPlugin, replication::ReplicationPlugin, ui::UiPlugin};
+use crate::{network::NetworkPlugin, replication::ReplicationPlugin, ui::UiPlugin, interpolation::InterpolationPlugin};
 
 #[cfg(feature = "host")]
 use crate::host::HostPlugin;
@@ -32,10 +32,10 @@ pub struct LaunchConfigurations {
     pub client_remote_config: Option<ClientConfig>,
 }
 
-fn build_shared_app(
+fn build_core_client_app(
     app: &mut App,
     client_remote_config: ClientConfig,
-    asset_path: String
+    asset_path: String,
 ) -> &mut App {
     app.add_plugins((
         DefaultPlugins.build().set(AssetPlugin {
@@ -52,20 +52,20 @@ fn build_shared_app(
         NetworkPlugin,
         RenderPlugin,
         ReplicationPlugin,
-        InputPlugin
+        InputPlugin,
+        InterpolationPlugin,
     ));
-
 
     app.insert_resource(AssetPath(asset_path));
 
     app
 }
 
-
 #[cfg(not(feature = "host"))]
 pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App {
-    let mut app = build_shared_app(App::new());
+    let mut app = App::new();
 
+    build_core_client_app(&mut app, client_config.clone(), asset_path);
 
     app.insert_resource(LaunchConfigurations {
         server_config: None,
@@ -87,11 +87,9 @@ pub fn build_client_app(
 ) -> App {
     let mut app = App::new();
 
-    build_shared_app(&mut app, client_remote_config.clone(), asset_path.clone());
+    build_core_client_app(&mut app, client_remote_config.clone(), asset_path.clone());
 
-    app.add_plugins((
-        HostPlugin,
-    ));
+    app.add_plugins((HostPlugin,));
 
     app.insert_resource(LaunchConfigurations {
         server_config: Some(server_config),

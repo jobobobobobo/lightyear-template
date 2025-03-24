@@ -1,6 +1,9 @@
 use crate::game_state::GameState;
 use bevy::prelude::*;
-use lightyear::prelude::{client::{ClientCommandsExt, ClientConnection, NetClient}, *};
+use lightyear::prelude::{
+    client::{ClientCommandsExt, ClientConnection, NetClient},
+    *,
+};
 use mygame_assets::{CurrentLevel, LevelState};
 use mygame_protocol::{
     component::Player,
@@ -51,7 +54,7 @@ fn on_server_welcome(
 }
 
 fn await_spawn(
-    mut commands: Commands, 
+    mut commands: Commands,
     q_spawned_player: Query<(Entity, &Player), Added<Player>>,
     client: Res<ClientConnection>,
 ) {

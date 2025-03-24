@@ -1,5 +1,9 @@
 use bevy::prelude::*;
-use leafwing_input_manager::{plugin::InputManagerPlugin, prelude::{ActionState, InputMap}, Actionlike};
+use leafwing_input_manager::{
+    Actionlike,
+    plugin::InputManagerPlugin,
+    prelude::{ActionState, InputMap},
+};
 use mygame_common::Simulated;
 use serde::{Deserialize, Serialize};
 
@@ -8,12 +12,14 @@ use crate::{game_state::GameState, replication::LocalPlayer, ui::system_menu::Sy
 pub struct InputPlugin;
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugins(InputManagerPlugin::<LocalInput>::default())
-            .add_systems(Update, (
-                add_local_input_map,
-                handle_system_menu_or_cancel.run_if(in_state(GameState::Playing))
-            ));
+        app.add_plugins(InputManagerPlugin::<LocalInput>::default())
+            .add_systems(
+                Update,
+                (
+                    add_local_input_map,
+                    handle_system_menu_or_cancel.run_if(in_state(GameState::Playing)),
+                ),
+            );
     }
 }
 
@@ -23,7 +29,10 @@ pub enum LocalInput {
     SystemMenuOrCancel,
 }
 
-fn add_local_input_map(mut commands: Commands, q_local_player: Query<Entity, (Simulated, Added<LocalPlayer>)>) {
+fn add_local_input_map(
+    mut commands: Commands,
+    q_local_player: Query<Entity, (Simulated, Added<LocalPlayer>)>,
+) {
     for player in &q_local_player {
         commands.entity(player).insert((
             InputMap::<LocalInput>::default().with(LocalInput::SystemMenuOrCancel, KeyCode::Escape),

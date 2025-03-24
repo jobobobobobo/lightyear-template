@@ -9,8 +9,8 @@ impl Plugin for SystemMenuPlugin {
         app.init_state::<SystemMenuState>();
 
         app.add_systems(OnEnter(SystemMenuState::Open), open_system_menu)
-        .add_systems(OnEnter(SystemMenuState::Closed), close_system_menu)
-        .add_systems(OnExit(GameState::Playing), close_system_menu);
+            .add_systems(OnEnter(SystemMenuState::Closed), close_system_menu)
+            .add_systems(OnExit(GameState::Playing), close_system_menu);
     }
 }
 

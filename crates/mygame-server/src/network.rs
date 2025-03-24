@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use lightyear::prelude::{
-    server::{ServerCommandsExt, ServerConnection}, FromClients, ReplicationGroup, ServerConnectionManager
+    FromClients, ReplicationGroup, ServerConnectionManager,
+    server::{ServerCommandsExt, ServerConnection},
 };
 use mygame_assets::{CurrentLevel, LevelState};
 use mygame_protocol::message::{ClientHostRequestShutdown, Level};
@@ -37,7 +38,7 @@ fn on_host_request_shutdown(
 
     for ev in ev_host_request_shutdown.drain() {
         println!("from: {} but owner: {}", ev.from, owner);
-        
+
         if ev.from.to_bits() == owner.to_bits() {
             println!("NOT HELLO...");
             commands.stop_server();

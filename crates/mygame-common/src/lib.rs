@@ -1,7 +1,7 @@
 use avian3d::{PhysicsPlugins, prelude::PhysicsInterpolationPlugin};
 use bevy::prelude::*;
 use lightyear::prelude::{
-    client::{Interpolated, Predicted},
+    client::{Interpolated, Predicted, VisualInterpolateStatus},
     server::ReplicationTarget,
 };
 use mygame_assets::AssetPlugin;

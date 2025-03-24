@@ -1,12 +1,23 @@
 An opinionated lightyear starter project.
 
-Replace all instances of `mygame` in the names of folders and files with the name of your game. 
+# Features & Opinions
+- Defaults to 3d + leafwing + predicted player + interpolated remotes
+- Launcher driven by .ron settings files
+- Client that can start and stop hosting (in a second app / second thread) while the app is running.
+- Simple zero-dependency asset abstraction for arranging loading states around groups of assets
+    - Unified asset folder for client/server
+    - Includes an opportunity for asset postprocessing, to add, as this template does, Colliders to entities in converted GLTF Scenes
+- Distinct Local/Networked inputs
+- WASM setup
+- Basic Visual and Networked interpolation setups
 
 # Usage
 
+Replace all instances of `mygame` in the names of folders and files with the name of your game. 
+
 ```
-cargo run server
 cargo run client -c 1
+cargo run server
 ```
 
 # Crates
@@ -38,6 +49,8 @@ Configuration can be modified in `crates/mygame-launcher/options` and extended i
 ## Running the WASM client
 
 Must modify `crates/mygame-launcher/options/web_client_options.ron` to include the certificate digest for the certs specified in `server_options.ron`.
+
+Install trunk [here](https://trunkrs.dev/) or via `cargo install --locked trunk`.
 
 ```
 trunk --config ./crates/mygame-launcher/Trunk.toml serve

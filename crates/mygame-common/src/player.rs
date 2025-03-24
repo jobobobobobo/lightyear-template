@@ -43,7 +43,7 @@ fn add_player_gameplay_components(
     }
 }
 
-const PLAYER_MOVE_SPEED: f32 = 10.0;
+const PLAYER_MOVE_SPEED: f32 = 30.0;
 
 fn move_player(
     mut q_player: Query<

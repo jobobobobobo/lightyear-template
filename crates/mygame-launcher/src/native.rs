@@ -53,13 +53,13 @@ struct Cli {
     client_id: u64,
 
     #[arg(long, value_name = "FILE")]
-    shared_config: Option<PathBuf>,
+    shared_options: Option<PathBuf>,
 
     #[arg(long, value_name = "FILE")]
-    client_config: Option<PathBuf>,
+    client_options: Option<PathBuf>,
 
     #[arg(long, value_name = "FILE")]
-    server_config: Option<PathBuf>,
+    server_options: Option<PathBuf>,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -83,7 +83,7 @@ where
         Ok(str) => str,
         Err(_) => {
             println!(
-                "Warning: Failed to read config from {:?}, using defaults",
+                "Warning: Failed to read config from {:?}",
                 config_path
             );
             return None;
@@ -94,7 +94,7 @@ where
         Ok(config) => config,
         Err(e) => {
             println!(
-                "Warning: Failed to parse config from {:?}: {}, using defaults",
+                "Warning: Failed to parse config from {:?}: {}",
                 config_path, e
             );
             return None;
@@ -131,7 +131,7 @@ fn load_server_options(path: Option<PathBuf>) -> ServerLaunchOptions {
 pub fn run() {
     let cli = Cli::parse();
 
-    let shared_launch_options = load_shared_options(cli.shared_config);
+    let shared_launch_options = load_shared_options(cli.shared_options);
 
     let shared_config = SharedConfig {
         server_replication_send_interval: shared_launch_options.server_replication_send_interval,
@@ -151,9 +151,9 @@ pub fn run() {
                 )
             }
 
-            let client_launch_options = load_client_options(cli.client_config);
+            let client_launch_options = load_client_options(cli.client_options);
 
-            let mut server_launch_options = load_server_options(cli.server_config);
+            let mut server_launch_options = load_server_options(cli.server_options);
 
             // Always set server to headless in client mode
             server_launch_options.headless = true;
@@ -298,7 +298,7 @@ pub fn run() {
             .run();
         }
         Mode::Server => {
-            let server_launch_options = load_server_options(cli.server_config);
+            let server_launch_options = load_server_options(cli.server_options);
 
             let headless = cli.headless || server_launch_options.headless;
 

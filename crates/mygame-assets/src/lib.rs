@@ -65,7 +65,7 @@ fn on_level_change(
         return;
     }
 
-    // need to drop all handles from the loaded level
+    // TODO: need to drop all handles from the loaded level
     // and despawn everything from the loaded level
 
     global_assets.character =

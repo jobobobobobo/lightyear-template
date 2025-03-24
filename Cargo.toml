@@ -37,7 +37,7 @@ serde = "1.0.217"
 crossbeam-channel = "0.5.14"
 getrandom = {version = "0.2", features = ["wasm_js"]}
 
-lightyear = {path = "../lightyear/lightyear", features = [
+lightyear = {git = "https://github.com/cBournhonesque/lightyear", branch = "main", features = [
   "leafwing",
   "avian3d",
   "websocket",
