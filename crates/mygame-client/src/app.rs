@@ -11,26 +11,14 @@ use lightyear::{
 use mygame_common::CommonPlugin;
 use mygame_render::RenderPlugin;
 
+use crate::game_state::{GameLifecyclePlugin, GameState};
+use crate::input::InputPlugin;
 use crate::{network::NetworkPlugin, replication::ReplicationPlugin, ui::UiPlugin};
 
 #[cfg(feature = "host")]
 use crate::host::HostPlugin;
 #[cfg(feature = "host")]
 use lightyear::prelude::client::IoConfig;
-
-#[derive(States, Debug, Default, Clone, PartialEq, Eq, Hash)]
-pub enum GameState {
-    #[default]
-    MainMenu,
-    #[cfg(feature = "host")]
-    Hosting, // Prepping the local server
-    ConnectingRemote, // Connection request sent to the server,
-    #[cfg(feature = "host")]
-    ConnectingSelf,   // Connection request sent to the LOCAL server
-    Loading,          // Connected and server told us to load something
-    Spawning,         // Loaded the assets, now wait for the Player to be replicated
-    Playing,          // Player exists and we can give control to the client
-}
 
 /// The root asset path is preserved here by the client at startup so it can be forwarded
 /// to the client server, should they choose to host.
@@ -44,10 +32,11 @@ pub struct LaunchConfigurations {
     pub client_remote_config: Option<ClientConfig>,
 }
 
-#[cfg(not(feature = "host"))]
-pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App {
-    let mut app = App::new();
-
+fn build_shared_app(
+    app: &mut App,
+    client_remote_config: ClientConfig,
+    asset_path: String
+) -> &mut App {
     app.add_plugins((
         DefaultPlugins.build().set(AssetPlugin {
             file_path: asset_path.clone(),
@@ -55,17 +44,29 @@ pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App 
             ..default()
         }),
         ClientPlugins {
-            config: client_config.clone(),
+            config: client_remote_config.clone(),
         },
         CommonPlugin,
+        GameLifecyclePlugin,
         UiPlugin,
         NetworkPlugin,
         RenderPlugin,
         ReplicationPlugin,
+        InputPlugin
     ));
 
-    app.init_state::<GameState>();
+
     app.insert_resource(AssetPath(asset_path));
+
+    app
+}
+
+
+#[cfg(not(feature = "host"))]
+pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App {
+    let mut app = build_shared_app(App::new());
+
+
     app.insert_resource(LaunchConfigurations {
         server_config: None,
         client_local_config: None,
@@ -86,25 +87,11 @@ pub fn build_client_app(
 ) -> App {
     let mut app = App::new();
 
+    build_shared_app(&mut app, client_remote_config.clone(), asset_path.clone());
+
     app.add_plugins((
-        DefaultPlugins.build().set(AssetPlugin {
-            file_path: asset_path.clone(),
-            meta_check: AssetMetaCheck::Never,
-            ..default()
-        }),
-        ClientPlugins {
-            config: client_remote_config.clone(),
-        },
-        CommonPlugin,
-        UiPlugin,
-        NetworkPlugin,
-        RenderPlugin,
-        ReplicationPlugin,
         HostPlugin,
     ));
-
-    app.init_state::<GameState>();
-    app.insert_resource(AssetPath(asset_path));
 
     app.insert_resource(LaunchConfigurations {
         server_config: Some(server_config),

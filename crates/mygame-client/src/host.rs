@@ -2,16 +2,19 @@
 
 use bevy::prelude::*;
 use crossbeam_channel::{Receiver, Sender};
-use lightyear::client::config::ClientConfig;
+use lightyear::prelude::client::{Authentication, NetConfig};
 use lightyear::prelude::server::ServerTransport;
+use lightyear::prelude::*;
 use lightyear::server::config::ServerConfig;
+use lightyear::{client::config::ClientConfig, prelude::client::ClientConnection};
 use std::{
     net::{Ipv4Addr, SocketAddr},
     thread,
     time::Duration,
 };
 
-use crate::app::{AssetPath, GameState, LaunchConfigurations};
+use crate::app::{AssetPath, LaunchConfigurations};
+use crate::game_state::GameState;
 use mygame_server::app::{ServerMode, build_server_app};
 
 pub struct HostPlugin;
@@ -35,7 +38,29 @@ fn on_client_begin_hosting(
     mut commands: Commands,
     launch_configurations: ResMut<LaunchConfigurations>,
     asset_path: Res<AssetPath>,
+    client: Res<ClientConnection>,
 ) {
+    let client_id = match launch_configurations
+        .client_local_config
+        .clone()
+        .expect("There must be a server config if we are in host mode.")
+        .net
+    {
+        NetConfig::Netcode { auth, config, io } => match auth {
+            Authentication::Token(connect_token) => {
+                panic!("ClientHost Authentication should not require a connect token.")
+            }
+            Authentication::Manual {
+                server_addr,
+                client_id,
+                private_key,
+                protocol_id,
+            } => client_id,
+            Authentication::None => panic!("Authentication is required."),
+        },
+        NetConfig::Local { id } => panic!("Only networked configurations are supported."),
+    };
+
     {
         let server_app = build_server_app(
             launch_configurations
@@ -43,7 +68,7 @@ fn on_client_begin_hosting(
                 .clone()
                 .expect("There must be a server config if we are in host mode."),
             asset_path.0.clone(),
-            ServerMode::ClientHost,
+            ServerMode::ClientHost(ClientId::Netcode(client_id)),
         );
 
         let mut send_server_app = SendApp(server_app);

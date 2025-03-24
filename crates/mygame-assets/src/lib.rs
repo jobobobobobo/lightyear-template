@@ -65,6 +65,9 @@ fn on_level_change(
         return;
     }
 
+    // need to drop all handles from the loaded level
+    // and despawn everything from the loaded level
+
     global_assets.character =
         asset_server.load(GltfAssetLabel::Scene(0).from_asset("scenes/example_character.glb"));
 

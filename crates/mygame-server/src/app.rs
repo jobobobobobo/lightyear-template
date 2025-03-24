@@ -28,12 +28,13 @@ use mygame_render::RenderPlugin;
 
 use crate::{network::NetworkPlugin, replication::ReplicationPlugin};
 
-#[derive(PartialEq, Eq)]
+#[derive(Resource, PartialEq, Eq)]
 pub enum ServerMode {
     Windowed,
     Headless,
-    ClientHost,
+    ClientHost(ClientId),
 }
+
 pub fn build_server_app(server_config: ServerConfig, asset_path: String, mode: ServerMode) -> App {
     let mut app = App::new();
 
@@ -74,8 +75,11 @@ pub fn build_server_app(server_config: ServerConfig, asset_path: String, mode: S
                 PbrPlugin::default(),
             ));
 
-            if mode != ServerMode::ClientHost {
-                app.add_plugins(LogPlugin::default());
+            match mode {
+                ServerMode::ClientHost(_) => {}
+                _ => {
+                    app.add_plugins(LogPlugin::default());
+                }
             }
 
             app.init_asset::<Image>(); // or add ImagePlugin
@@ -85,7 +89,8 @@ pub fn build_server_app(server_config: ServerConfig, asset_path: String, mode: S
     app.add_plugins(ServerPlugins {
         config: server_config,
     })
-    .add_plugins((CommonPlugin, NetworkPlugin, ReplicationPlugin));
+    .add_plugins((CommonPlugin, NetworkPlugin, ReplicationPlugin))
+    .insert_resource(mode);
 
     app
 }

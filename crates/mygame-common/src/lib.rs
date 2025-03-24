@@ -26,5 +26,5 @@ impl Plugin for CommonPlugin {
     }
 }
 
-type Simulated = Or<(With<Predicted>, With<ReplicationTarget>)>;
-type Rendered = Or<(Simulated, With<Interpolated>)>;
+pub type Simulated = Or<(With<Predicted>, With<ReplicationTarget>)>;
+pub type Rendered = Or<(Simulated, With<Interpolated>)>;

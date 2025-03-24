@@ -1,6 +1,6 @@
-use crate::app::GameState;
+use crate::game_state::GameState;
 use bevy::prelude::*;
-use lightyear::prelude::{client::ClientCommandsExt, *};
+use lightyear::prelude::{client::{ClientCommandsExt, ClientConnection, NetClient}, *};
 use mygame_assets::{CurrentLevel, LevelState};
 use mygame_protocol::{
     component::Player,
@@ -19,6 +19,10 @@ impl Plugin for ReplicationPlugin {
         app.add_systems(OnEnter(LevelState::Loaded), on_assets_loaded);
     }
 }
+
+/// Tag component to identify the local player
+#[derive(Component)]
+pub struct LocalPlayer;
 
 /// Once finished loading the assets that the server requested the client to load
 /// Signal the completion to the server
@@ -46,9 +50,15 @@ fn on_server_welcome(
     }
 }
 
-fn await_spawn(mut commands: Commands, q_spawned_player: Query<Entity, Added<Player>>) {
-    if !q_spawned_player.is_empty() {
-        // TODO: Check that it's actually the local player that got added
-        commands.set_state(GameState::Playing);
+fn await_spawn(
+    mut commands: Commands, 
+    q_spawned_player: Query<(Entity, &Player), Added<Player>>,
+    client: Res<ClientConnection>,
+) {
+    for (entity, player) in &q_spawned_player {
+        if player.0 == client.id() {
+            commands.entity(entity).insert(LocalPlayer);
+            commands.set_state(GameState::Playing);
+        }
     }
 }

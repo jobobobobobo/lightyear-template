@@ -4,7 +4,8 @@ use lightyear::{
     prelude::{ClientConnectEvent, ClientDisconnectEvent, client::ClientCommandsExt},
 };
 
-use crate::app::{GameState, LaunchConfigurations};
+use crate::app::{LaunchConfigurations};
+use crate::game_state::{GameState};
 
 pub struct NetworkPlugin;
 

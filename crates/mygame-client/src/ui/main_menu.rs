@@ -1,11 +1,11 @@
-use bevy::prelude::*;
+use bevy::{color::palettes::tailwind::SLATE_800, prelude::*};
 use lightyear::prelude::client::ClientCommandsExt;
 
-use crate::app::GameState;
+use crate::game_state::GameState;
 
-pub struct UiPlugin;
+pub struct MainMenuPlugin;
 
-impl Plugin for UiPlugin {
+impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::MainMenu), spawn_main_menu_ui);
         app.add_systems(
@@ -42,6 +42,7 @@ fn spawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<Ma
                 flex_direction: FlexDirection::Column,
                 ..default()
             },
+            BackgroundColor(SLATE_800.into()),
             MainMenu,
         ))
         .with_children(|child_builder| {
