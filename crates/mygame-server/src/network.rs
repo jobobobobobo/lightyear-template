@@ -37,10 +37,7 @@ fn on_host_request_shutdown(
     };
 
     for ev in ev_host_request_shutdown.drain() {
-        println!("from: {} but owner: {}", ev.from, owner);
-
         if ev.from.to_bits() == owner.to_bits() {
-            println!("NOT HELLO...");
             commands.stop_server();
         }
     }

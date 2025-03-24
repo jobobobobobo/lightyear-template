@@ -17,6 +17,10 @@ impl Plugin for NetworkPlugin {
         );
         #[cfg(feature = "host")]
         app.add_systems(OnEnter(GameState::ConnectingSelf), connect_to_local_server);
+
+        app
+            .add_observer(on_client_connect_success)
+            .add_observer(on_client_disconnect);
     }
 }
 
@@ -55,6 +59,5 @@ fn on_client_disconnect(
     mut game_state: ResMut<NextState<GameState>>,
 ) {
     // TODO: Cleanup existing state?
-
     game_state.set(GameState::MainMenu);
 }

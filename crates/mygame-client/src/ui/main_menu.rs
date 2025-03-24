@@ -8,9 +8,15 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::MainMenu), spawn_main_menu_ui);
+        app.add_systems(OnExit(GameState::MainMenu), despawn_main_menu_buttons);
+
         app.add_systems(
             OnEnter(GameState::ConnectingRemote),
             on_client_begin_connecting,
+        );
+        app.add_systems(
+            OnEnter(GameState::ConnectingSelf),
+            on_client_begin_hosting,
         );
         app.add_systems(OnEnter(GameState::Loading), on_client_begin_loading);
         app.add_systems(OnEnter(GameState::Playing), despawn_main_menu_ui);
@@ -25,6 +31,10 @@ pub struct MainMenuStatusText;
 
 #[derive(Component)]
 pub struct ConnectButton;
+
+#[cfg(feature = "host")]
+#[derive(Component)]
+pub struct HostButton;
 
 fn spawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<MainMenu>>) {
     // Despawn any existing copies of the menu
@@ -76,16 +86,26 @@ fn spawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<Ma
             #[cfg(feature = "host")]
             child_builder
                 .spawn(Text::new("Host"))
-                .insert(ConnectButton)
+                .insert(HostButton)
                 .observe(|_click: Trigger<Pointer<Click>>, mut commands: Commands| {
                     commands.set_state(GameState::Hosting);
                 });
         });
 }
 
+fn despawn_main_menu_buttons() {
+    // could you please finish this system for me
+}
+
 fn on_client_begin_loading(mut q_status_text: Query<&mut Text, With<MainMenuStatusText>>) {
     for mut text in q_status_text.iter_mut() {
         text.0 = String::from("Loading");
+    }
+}
+
+fn on_client_begin_hosting(mut q_status_text: Query<&mut Text, With<MainMenuStatusText>>) {
+    for mut text in q_status_text.iter_mut() {
+        text.0 = String::from("Hosting");
     }
 }
 
