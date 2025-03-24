@@ -1,6 +1,8 @@
+# Lightyear Template
+
 An opinionated lightyear starter project.
 
-# Features & Opinions
+## Features & Opinions
 - Defaults to 3d + leafwing + predicted player + interpolated remotes
 - Launcher driven by .ron settings files
 - Client that can start and stop hosting (in a second app / second thread) while the app is running.
@@ -11,7 +13,7 @@ An opinionated lightyear starter project.
 - WASM setup
 - Basic Visual and Networked interpolation setups
 
-# Usage
+## Usage
 
 Replace all instances of `mygame` in the names of folders and files with the name of your game. 
 
@@ -20,7 +22,7 @@ cargo run client -c 1
 cargo run server
 ```
 
-# Crates
+## Crates
 
 ### client
 
