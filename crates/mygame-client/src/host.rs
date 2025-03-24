@@ -75,5 +75,5 @@ fn on_client_begin_hosting(
         std::thread::spawn(move || send_server_app.run());
     }
 
-    commands.set_state(GameState::ConnectingRemote);
+    commands.set_state(GameState::ConnectingSelf);
 }

@@ -8,15 +8,14 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::MainMenu), spawn_main_menu_ui);
-        app.add_systems(OnExit(GameState::MainMenu), despawn_main_menu_buttons);
 
         app.add_systems(
             OnEnter(GameState::ConnectingRemote),
-            on_client_begin_connecting,
+            (despawn_main_menu_buttons, on_client_begin_connecting).chain(),
         );
         app.add_systems(
             OnEnter(GameState::ConnectingSelf),
-            on_client_begin_hosting,
+            (despawn_main_menu_buttons, on_client_begin_hosting).chain(),
         );
         app.add_systems(OnEnter(GameState::Loading), on_client_begin_loading);
         app.add_systems(OnEnter(GameState::Playing), despawn_main_menu_ui);
@@ -93,8 +92,19 @@ fn spawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<Ma
         });
 }
 
-fn despawn_main_menu_buttons() {
-    // could you please finish this system for me
+fn despawn_main_menu_buttons(
+    mut commands: Commands, 
+    q_connect_buttons: Query<Entity, With<ConnectButton>>,
+    #[cfg(feature = "host")] q_host_buttons: Query<Entity, With<HostButton>>
+) {
+    for entity in &q_connect_buttons {
+        commands.entity(entity).despawn_recursive();
+    }
+    
+    #[cfg(feature = "host")]
+    for entity in &q_host_buttons {
+        commands.entity(entity).despawn_recursive();
+    }
 }
 
 fn on_client_begin_loading(mut q_status_text: Query<&mut Text, With<MainMenuStatusText>>) {

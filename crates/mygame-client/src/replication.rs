@@ -16,7 +16,10 @@ impl Plugin for ReplicationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            on_server_welcome.run_if(in_state(GameState::ConnectingRemote)),
+            (
+                on_server_welcome.run_if(in_state(GameState::ConnectingRemote)),
+                on_server_welcome.run_if(in_state(GameState::ConnectingSelf))
+            )
         );
         app.add_systems(Update, await_spawn.run_if(in_state(GameState::Spawning)));
         app.add_systems(OnEnter(LevelState::Loaded), on_assets_loaded);
