@@ -1,5 +1,7 @@
 # Lightyear Template
 
+![ci status](https://github.com/piefayth/lightyear-template/actions/workflows/ci.yaml/badge.svg)
+
 An opinionated lightyear starter project.
 
 ## Features & Opinions
