@@ -13,7 +13,10 @@ use mygame_render::RenderPlugin;
 
 use crate::game_state::{GameLifecyclePlugin, GameState};
 use crate::input::InputPlugin;
-use crate::{network::NetworkPlugin, replication::ReplicationPlugin, ui::UiPlugin, interpolation::InterpolationPlugin};
+use crate::{
+    interpolation::InterpolationPlugin, network::NetworkPlugin, replication::ReplicationPlugin,
+    ui::UiPlugin,
+};
 
 #[cfg(feature = "host")]
 use crate::host::HostPlugin;

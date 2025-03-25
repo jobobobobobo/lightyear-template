@@ -18,8 +18,7 @@ impl Plugin for NetworkPlugin {
         #[cfg(feature = "host")]
         app.add_systems(OnEnter(GameState::ConnectingSelf), connect_to_local_server);
 
-        app
-            .add_observer(on_client_connect_success)
+        app.add_observer(on_client_connect_success)
             .add_observer(on_client_disconnect);
     }
 }

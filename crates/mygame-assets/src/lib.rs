@@ -93,14 +93,10 @@ fn check_asset_loading(
     mut loading_assets: ResMut<LoadingAssets>,
     mut next_state: ResMut<NextState<LevelState>>,
 ) {
-    let all_loaded =
-        loading_assets
-            .handles
-            .iter()
-            .all(|handle| match asset_server.get_load_state(handle) {
-                Some(LoadState::Loaded) => true,
-                _ => false,
-            });
+    let all_loaded = loading_assets
+        .handles
+        .iter()
+        .all(|handle| matches!(asset_server.get_load_state(handle), Some(LoadState::Loaded)));
 
     if all_loaded {
         info!("All assets loaded successfully");

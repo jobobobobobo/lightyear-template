@@ -77,3 +77,6 @@ strip = "debuginfo"
 dead_code = "allow"
 unused_variables = "allow"
 unused_imports = "allow"
+
+[workspace.lints.clippy]
+type_complexity = "allow"

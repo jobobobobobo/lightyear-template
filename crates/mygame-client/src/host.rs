@@ -1,5 +1,3 @@
-#![cfg(feature = "host")]
-
 use bevy::prelude::*;
 use crossbeam_channel::{Receiver, Sender};
 use lightyear::prelude::client::{Authentication, NetConfig};

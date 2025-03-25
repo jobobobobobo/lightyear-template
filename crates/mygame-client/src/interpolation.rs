@@ -22,7 +22,7 @@ impl Plugin for InterpolationPlugin {
             PostUpdate,
             position_to_transform_for_interpolated.before(TransformSystem::TransformPropagate),
         );
-        
+
         app.add_systems(Update, interp_loader);
     }
 }
@@ -75,10 +75,7 @@ fn interp_loader(
     mut commands: Commands,
     q_interpolated: Query<
         (Entity, &Position),
-        (
-            With<Predicted>,
-            Without<VisualInterpolateStatus<Transform>>,
-        ),
+        (With<Predicted>, Without<VisualInterpolateStatus<Transform>>),
     >,
 ) {
     for (e, p) in &q_interpolated {

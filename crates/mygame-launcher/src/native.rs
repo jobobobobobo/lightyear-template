@@ -82,10 +82,7 @@ where
     let config_str = match fs::read_to_string(&config_path) {
         Ok(str) => str,
         Err(_) => {
-            println!(
-                "Warning: Failed to read config from {:?}",
-                config_path
-            );
+            println!("Warning: Failed to read config from {:?}", config_path);
             return None;
         }
     };
@@ -109,7 +106,7 @@ fn load_shared_options(path: Option<PathBuf>) -> SharedLaunchOptions {
         path,
         DEFAULT_SHARED_CONFIG_PATH,
     )
-    .unwrap_or(SharedLaunchOptions::default())
+    .unwrap_or_default()
 }
 
 fn load_client_options(path: Option<PathBuf>) -> ClientLaunchOptions {
@@ -117,7 +114,7 @@ fn load_client_options(path: Option<PathBuf>) -> ClientLaunchOptions {
         path,
         DEFAULT_CLIENT_CONFIG_PATH,
     )
-    .unwrap_or(ClientLaunchOptions::default())
+    .unwrap_or_default()
 }
 
 fn load_server_options(path: Option<PathBuf>) -> ServerLaunchOptions {
@@ -125,7 +122,7 @@ fn load_server_options(path: Option<PathBuf>) -> ServerLaunchOptions {
         path,
         DEFAULT_SERVER_CONFIG_PATH,
     )
-    .unwrap_or(ServerLaunchOptions::default())
+    .unwrap_or_default()
 }
 
 pub fn run() {
@@ -185,7 +182,7 @@ pub fn run() {
             };
 
             let local_client_config = ClientConfig {
-                shared: shared_config.clone(),
+                shared: shared_config,
                 net: local_netcode,
                 prediction: PredictionConfig::default()
                     .with_correction_ticks_factor(client_launch_options.correction_ticks_factor),
@@ -223,7 +220,7 @@ pub fn run() {
             };
 
             let remote_client_config = ClientConfig {
-                shared: shared_config.clone(),
+                shared: shared_config,
                 net: remote_netcode,
                 prediction: PredictionConfig::default()
                     .with_correction_ticks_factor(client_launch_options.correction_ticks_factor),

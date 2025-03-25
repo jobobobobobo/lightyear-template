@@ -93,14 +93,14 @@ fn spawn_main_menu_ui(mut commands: Commands, q_main_menu: Query<Entity, With<Ma
 }
 
 fn despawn_main_menu_buttons(
-    mut commands: Commands, 
+    mut commands: Commands,
     q_connect_buttons: Query<Entity, With<ConnectButton>>,
-    #[cfg(feature = "host")] q_host_buttons: Query<Entity, With<HostButton>>
+    #[cfg(feature = "host")] q_host_buttons: Query<Entity, With<HostButton>>,
 ) {
     for entity in &q_connect_buttons {
         commands.entity(entity).despawn_recursive();
     }
-    
+
     #[cfg(feature = "host")]
     for entity in &q_host_buttons {
         commands.entity(entity).despawn_recursive();

@@ -65,12 +65,12 @@ pub fn build_server_app(server_config: ServerConfig, asset_path: String, mode: S
                     }),
                     ..default()
                 },
-                PanicHandlerPlugin::default(),
-                TransformPlugin::default(),
-                HierarchyPlugin::default(),
-                DiagnosticsPlugin::default(),
-                StatesPlugin::default(),
-                ScenePlugin::default(),
+                PanicHandlerPlugin,
+                TransformPlugin,
+                HierarchyPlugin,
+                DiagnosticsPlugin,
+                StatesPlugin,
+                ScenePlugin,
                 GltfPlugin::default(),
                 PbrPlugin::default(),
             ));
