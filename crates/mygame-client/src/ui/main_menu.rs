@@ -13,6 +13,7 @@ impl Plugin for MainMenuPlugin {
             OnEnter(GameState::ConnectingRemote),
             (despawn_main_menu_buttons, on_client_begin_connecting).chain(),
         );
+        #[cfg(feature = "host")]
         app.add_systems(
             OnEnter(GameState::ConnectingSelf),
             (despawn_main_menu_buttons, on_client_begin_hosting).chain(),
