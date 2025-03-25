@@ -173,7 +173,7 @@ jobs:
         if: ${{ matrix.platform == 'web' }}
         run: |
           cargo binstall --no-confirm trunk wasm-bindgen-cli wasm-opt
-          trunk build --locked --release --config ./crates/mygame-launcher/Trunk.toml --dist "${GITHUB_WORKSPACE}/tmp/app/mygame" -v
+          trunk build --locked --release --config ./crates/mygame-launcher/Trunk.toml --dist "${GITHUB_WORKSPACE}/tmp/app" -v
 
       - name: Build binaries (non-Web)
         if: ${{ matrix.platform != 'web' }}
@@ -365,7 +365,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'tmp/mygame'
+          path: 'tmp'
           
       - name: Deploy to GitHub Pages
         id: deployment
