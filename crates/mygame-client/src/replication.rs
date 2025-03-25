@@ -18,7 +18,8 @@ impl Plugin for ReplicationPlugin {
             Update,
             (
                 on_server_welcome.run_if(in_state(GameState::ConnectingRemote)),
-                #[cfg(feature = "host")] on_server_welcome.run_if(in_state(GameState::ConnectingSelf)),
+                #[cfg(feature = "host")]
+                on_server_welcome.run_if(in_state(GameState::ConnectingSelf)),
             ),
         );
         app.add_systems(Update, await_spawn.run_if(in_state(GameState::Spawning)));
