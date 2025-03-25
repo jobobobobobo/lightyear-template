@@ -15,6 +15,7 @@ An opinionated lightyear starter project.
 - WASM setup
 - Basic Visual and Networked interpolation setups
 - Main and ingame menus for connect/disconnect
+- Github Actions CI configuration
 
 ## Usage
 
