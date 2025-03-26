@@ -10,4 +10,5 @@
     ),
     webtransport_cert_path: "./crates/mygame-launcher/web/certs/cert.pem",
     webtransport_key_path: "./crates/mygame-launcher/web/certs/key.pem",
+    asset_path: "../mygame-assets/assets"
 )

@@ -138,8 +138,6 @@ pub fn run() {
         },
     };
 
-    let development_asset_path = String::from("../mygame-assets/assets");
-
     match cli.mode {
         Mode::Client => {
             if cli.client_id == 0 {
@@ -289,7 +287,7 @@ pub fn run() {
             build_client_app(
                 remote_client_config,
                 local_client_config,
-                development_asset_path,
+                client_launch_options.asset_path,
                 server_config,
             )
             .run();
@@ -356,7 +354,7 @@ pub fn run() {
                 ServerMode::Windowed
             };
 
-            build_server_app(server_config, development_asset_path, mode).run();
+            build_server_app(server_config, server_launch_options.asset_path, mode).run();
         }
     }
 }

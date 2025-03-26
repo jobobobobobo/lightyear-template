@@ -11,5 +11,5 @@
     correction_ticks_factor: 2.0,
     min_delay_ms: 25,
     certificate_digest: None,
-    asset_path: "../mygame-assets/assets"
+    asset_path: "./assets"
 )

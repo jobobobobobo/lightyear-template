@@ -1,0 +1,7 @@
+(
+    protocol_id: 0,
+    simulation_update_frequency_ms: 16,
+    server_replication_send_interval_ms: 0,
+    client_replication_send_interval_ms: 0,
+    key: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+)

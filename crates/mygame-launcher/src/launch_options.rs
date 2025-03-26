@@ -102,6 +102,7 @@ pub struct ClientLaunchOptions {
     pub correction_ticks_factor: f32,
     pub min_delay: Duration,
     pub certificate_digest: Option<String>,
+    pub asset_path: String,
 }
 
 impl Default for ClientLaunchOptions {
@@ -119,6 +120,7 @@ impl Default for ClientLaunchOptions {
             correction_ticks_factor: 2.0,
             min_delay: Duration::from_millis(25),
             certificate_digest: None,
+            asset_path: String::from("../mygame-assets/assets")
         }
     }
 }
@@ -133,6 +135,7 @@ pub struct SerializableClientLaunchOptions {
     pub correction_ticks_factor: f32,
     pub min_delay_ms: u64,
     pub certificate_digest: Option<String>,
+    pub asset_path: String,
 }
 
 impl From<ClientLaunchOptions> for SerializableClientLaunchOptions {
@@ -146,6 +149,7 @@ impl From<ClientLaunchOptions> for SerializableClientLaunchOptions {
             correction_ticks_factor: options.correction_ticks_factor,
             min_delay_ms: options.min_delay.as_millis() as u64,
             certificate_digest: options.certificate_digest,
+            asset_path: options.asset_path,
         }
     }
 }
@@ -167,6 +171,7 @@ impl From<SerializableClientLaunchOptions> for ClientLaunchOptions {
             correction_ticks_factor: serializable.correction_ticks_factor,
             min_delay: Duration::from_millis(serializable.min_delay_ms),
             certificate_digest: serializable.certificate_digest,
+            asset_path: serializable.asset_path,
         }
     }
 }
@@ -179,6 +184,7 @@ pub struct ServerLaunchOptions {
     pub conditioner: LinkConditionerConfig,
     pub webtransport_cert_path: String,
     pub webtransport_key_path: String,
+    pub asset_path: String,
 }
 
 impl Default for ServerLaunchOptions {
@@ -195,6 +201,7 @@ impl Default for ServerLaunchOptions {
             },
             webtransport_cert_path: String::from("./crates/mygame-launcher/web/certs/cert.pem"),
             webtransport_key_path: String::from("./crates/mygame-launcher/web/certs/key.pem"),
+            asset_path: String::from("../mygame-assets/assets")
         }
     }
 }
@@ -208,6 +215,7 @@ pub struct SerializableServerLaunchOptions {
     pub conditioner: SerializableLinkConditionerConfig,
     pub webtransport_cert_path: String,
     pub webtransport_key_path: String,
+    pub asset_path: String,
 }
 
 impl From<ServerLaunchOptions> for SerializableServerLaunchOptions {
@@ -220,20 +228,22 @@ impl From<ServerLaunchOptions> for SerializableServerLaunchOptions {
             conditioner: SerializableLinkConditionerConfig::from(options.conditioner),
             webtransport_cert_path: options.webtransport_cert_path,
             webtransport_key_path: options.webtransport_key_path,
+            asset_path: options.asset_path,
         }
     }
 }
 
 impl From<SerializableServerLaunchOptions> for ServerLaunchOptions {
-    fn from(options: SerializableServerLaunchOptions) -> Self {
+    fn from(serializable: SerializableServerLaunchOptions) -> Self {
         Self {
-            headless: options.headless,
-            listen_addr: options.listen_addr.parse().unwrap_or(Ipv4Addr::LOCALHOST),
-            udp_listen_port: options.udp_listen_port,
-            webtransport_listen_port: options.webtransport_listen_port,
-            conditioner: LinkConditionerConfig::from(options.conditioner),
-            webtransport_cert_path: options.webtransport_cert_path,
-            webtransport_key_path: options.webtransport_key_path,
+            headless: serializable.headless,
+            listen_addr: serializable.listen_addr.parse().unwrap_or(Ipv4Addr::LOCALHOST),
+            udp_listen_port: serializable.udp_listen_port,
+            webtransport_listen_port: serializable.webtransport_listen_port,
+            conditioner: LinkConditionerConfig::from(serializable.conditioner),
+            webtransport_cert_path: serializable.webtransport_cert_path,
+            webtransport_key_path: serializable.webtransport_key_path,
+            asset_path: serializable.asset_path,
         }
     }
 }

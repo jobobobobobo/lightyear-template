@@ -23,7 +23,7 @@ env:
   assets_path: crates/mygame-assets/assets
 
   # The path to the options directory.
-  options_path: crates/mygame-launcher/options
+  options_path: deployment/client/options
 
   # Whether to upload the packages produced by this workflow to a GitHub release.
   upload_to_github: true

@@ -110,8 +110,6 @@ pub fn run() {
 }
 
 async fn initialize_game() -> Result<(), JsValue> {
-    let wasm_asset_path = String::from("./assets");
-
     let client_launch_options = load_client_config().await?;
     let shared_launch_options = load_shared_config().await?;
 
@@ -186,7 +184,7 @@ async fn initialize_game() -> Result<(), JsValue> {
     };
 
     console::log_1(&"Starting client app...".into());
-    build_client_app(client_config, wasm_asset_path).run();
+    build_client_app(client_config, client_launch_options.asset_path).run();
 
     Ok(())
 }
