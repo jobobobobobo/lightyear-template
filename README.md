@@ -16,7 +16,7 @@ An opinionated lightyear starter project.
 - Basic Visual and Networked interpolation setups
 - Main and ingame menus for connect/disconnect
 - Github Actions CI configurations
-    - Test/Clippy/Lint
+    - Test/Clippy/Lint/Docker
     - Release web client to github pages, all platforms to itch.io
 
 ## Usage
