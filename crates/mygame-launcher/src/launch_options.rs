@@ -120,7 +120,7 @@ impl Default for ClientLaunchOptions {
             correction_ticks_factor: 2.0,
             min_delay: Duration::from_millis(25),
             certificate_digest: None,
-            asset_path: String::from("../mygame-assets/assets")
+            asset_path: String::from("../mygame-assets/assets"),
         }
     }
 }
@@ -201,7 +201,7 @@ impl Default for ServerLaunchOptions {
             },
             webtransport_cert_path: String::from("./crates/mygame-launcher/web/certs/cert.pem"),
             webtransport_key_path: String::from("./crates/mygame-launcher/web/certs/key.pem"),
-            asset_path: String::from("../mygame-assets/assets")
+            asset_path: String::from("../mygame-assets/assets"),
         }
     }
 }
@@ -237,7 +237,10 @@ impl From<SerializableServerLaunchOptions> for ServerLaunchOptions {
     fn from(serializable: SerializableServerLaunchOptions) -> Self {
         Self {
             headless: serializable.headless,
-            listen_addr: serializable.listen_addr.parse().unwrap_or(Ipv4Addr::LOCALHOST),
+            listen_addr: serializable
+                .listen_addr
+                .parse()
+                .unwrap_or(Ipv4Addr::LOCALHOST),
             udp_listen_port: serializable.udp_listen_port,
             webtransport_listen_port: serializable.webtransport_listen_port,
             conditioner: LinkConditionerConfig::from(serializable.conditioner),
