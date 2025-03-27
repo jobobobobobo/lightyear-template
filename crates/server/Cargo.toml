@@ -1,13 +1,13 @@
 [package]
-name = "mygame-server"
+name = "server"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-mygame-common = { path = "../mygame-common" }
-mygame-protocol = { path = "../mygame-protocol" }
-mygame-render = { path = "../mygame-render" }
-mygame-assets = { path = "../mygame-assets" }
+common = { path = "../common" }
+protocol = { path = "../protocol" }
+render = { path = "../render" }
+assets = { path = "../assets" }
 lightyear.workspace = true
 leafwing-input-manager.workspace = true
 avian3d.workspace = true

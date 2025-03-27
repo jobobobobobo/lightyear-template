@@ -52,16 +52,16 @@ Shared logic between client and headed server. Anything that the headless server
 
 ## Configuration
 
-Configuration can be modified in `crates/mygame-launcher/options` and extended in `crates/mygame-launcher/launch_options.rs`.
+Configuration can be modified in `crates/launcher/options` and extended in `crates/launcher/launch_options.rs`.
 
 ## Running the WASM client
 
-Must modify `crates/mygame-launcher/options/web_client_options.ron` to include the certificate digest for the certs specified in `server_options.ron`.
+Must modify `crates/launcher/options/web_client_options.ron` to include the certificate digest for the certs specified in `server_options.ron`.
 
 Install trunk [here](https://trunkrs.dev/) or via `cargo install --locked trunk`.
 
 ```
-trunk --config ./crates/mygame-launcher/Trunk.toml serve
+trunk --config ./crates/launcher/Trunk.toml serve
 ```
 
 Navigate to `127.0.0.1:8080?client_id=42`
@@ -71,7 +71,7 @@ Navigate to `127.0.0.1:8080?client_id=42`
 From the template root...
 
 ```
-openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -keyout ./crates/mygame-launcher/web/certs/key.pem -out ./crates/mygame-launcher/web/certs/cert.pem -days 14 -nodes -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -keyout ./crates/launcher/web/certs/key.pem -out ./crates/launcher/web/certs/cert.pem -days 14 -nodes -subj "/CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
 ```
 
 ## Notes

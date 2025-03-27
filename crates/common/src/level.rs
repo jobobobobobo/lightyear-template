@@ -1,8 +1,8 @@
 use avian3d::prelude::{Collider, RigidBody};
 use bevy::prelude::*;
 use lightyear::prelude::*;
-use mygame_assets::{CurrentLevel, Geometry, LevelState, assets::LevelAssets};
-use mygame_protocol::message::Level;
+use assets::{CurrentLevel, Geometry, LevelState, assets::LevelAssets};
+use protocol::message::Level;
 
 pub struct LevelPlugin;
 

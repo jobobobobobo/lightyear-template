@@ -2,13 +2,10 @@
     headless: true,
     listen_addr: "0.0.0.0",
     udp_listen_port: 12025,
-    webtransport_listen_port: 12026,
     conditioner: (
         incoming_latency_ms: 50,
         incoming_jitter_ms: 0,
         incoming_loss: 0.0,
     ),
-    webtransport_cert_path: "/app/certs/cert.pem",
-    webtransport_key_path: "/app/certs/key.pem",
     asset_path: "/app/assets"
 )

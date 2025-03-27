@@ -43,11 +43,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY --from=builder /app/target/release/mygame-launcher /app/mygame-launcher
-COPY --from=builder /app/crates/mygame-assets/assets/ /app/assets/
+COPY --from=builder /app/target/release/launcher /app/launcher
+COPY --from=builder /app/crates/assets/assets/ /app/assets/
 COPY --from=builder /app/options /app/options
 COPY --from=builder /app/certs /app/certs
 
 EXPOSE 12025
 
-CMD ["/app/mygame-launcher", "server", "--server-options", "/app/options/server_options.ron", "--shared-options", "/app/options/shared_options.ron"]
+CMD ["/app/launcher", "server", "--server-options", "/app/options/server_options.ron", "--shared-options", "/app/options/shared_options.ron"]

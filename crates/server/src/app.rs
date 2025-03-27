@@ -23,8 +23,8 @@ use lightyear::{
     prelude::*,
     server::{config::ServerConfig, plugin::ServerPlugins},
 };
-use mygame_common::CommonPlugin;
-use mygame_render::RenderPlugin;
+use common::CommonPlugin;
+use render::RenderPlugin;
 
 use crate::{network::NetworkPlugin, replication::ReplicationPlugin};
 

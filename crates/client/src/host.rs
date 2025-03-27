@@ -13,7 +13,7 @@ use std::{
 
 use crate::app::{AssetPath, LaunchConfigurations};
 use crate::game_state::GameState;
-use mygame_server::app::{ServerMode, build_server_app};
+use ::server::app::{ServerMode, build_server_app};
 
 pub struct HostPlugin;
 

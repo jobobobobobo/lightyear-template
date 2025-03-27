@@ -5,8 +5,8 @@ use lightyear::prelude::{
     client::{Confirmed, Interpolated, Predicted},
     server::ReplicationTarget,
 };
-use mygame_assets::{LevelState, assets::GlobalAssets};
-use mygame_protocol::{component::Player, input::NetworkedInput};
+use assets::{LevelState, assets::GlobalAssets};
+use protocol::{component::Player, input::NetworkedInput};
 
 use crate::{Rendered, Simulated};
 

@@ -3,8 +3,8 @@ use lightyear::prelude::{
     ClientConnectionManager, Replicated,
     client::{ClientCommandsExt, Confirmed, Predicted},
 };
-use mygame_assets::Geometry;
-use mygame_protocol::message::{ClientHostRequestShutdown, Reliable};
+use assets::Geometry;
+use protocol::message::{ClientHostRequestShutdown, Reliable};
 
 #[derive(States, Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {

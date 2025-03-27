@@ -5,8 +5,8 @@ use lightyear::prelude::{
     ServerConnectionManager, ServerDisconnectEvent, ServerReplicate,
     server::{ControlledBy, Lifetime, ServerCommandsExt, SyncTarget},
 };
-use mygame_assets::CurrentLevel;
-use mygame_protocol::{
+use assets::CurrentLevel;
+use protocol::{
     component::Player,
     message::{ClientLevelLoadComplete, Level, ServerWelcome, UnorderedReliable},
 };

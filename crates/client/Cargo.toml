@@ -1,14 +1,14 @@
 [package]
-name = "mygame-client"
+name = "client"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-mygame-common = { path = "../mygame-common" }
-mygame-render = { path = "../mygame-render" }
-mygame-protocol = { path = "../mygame-protocol" }
-mygame-assets = { path = "../mygame-assets" }
-mygame-server = { path = "../mygame-server", optional = true }
+common = { path = "../common" }
+render = { path = "../render" }
+protocol = { path = "../protocol" }
+assets = { path = "../assets" }
+server = { path = "../server", optional = true }
 lightyear.workspace = true
 leafwing-input-manager.workspace = true
 avian3d.workspace = true
@@ -21,4 +21,4 @@ workspace = true
 
 
 [features]
-host = ["dep:mygame-server"]
+host = ["dep:server"]

@@ -4,8 +4,8 @@ use lightyear::prelude::{
     client::{Interpolated, Predicted, VisualInterpolateStatus},
     server::ReplicationTarget,
 };
-use mygame_assets::AssetPlugin;
-use mygame_protocol::ProtocolPlugin;
+use assets::AssetPlugin;
+use protocol::ProtocolPlugin;
 
 pub mod level;
 pub mod player;

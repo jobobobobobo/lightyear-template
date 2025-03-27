@@ -3,8 +3,8 @@ use lightyear::prelude::{
     FromClients, ReplicationGroup, ServerConnectionManager,
     server::{NetworkingState, ServerCommandsExt, ServerConnection},
 };
-use mygame_assets::{CurrentLevel, LevelState};
-use mygame_protocol::message::{ClientHostRequestShutdown, Level};
+use assets::{CurrentLevel, LevelState};
+use protocol::message::{ClientHostRequestShutdown, Level};
 
 use crate::app::ServerMode;
 

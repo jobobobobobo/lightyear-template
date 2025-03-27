@@ -5,7 +5,7 @@ use bevy::{
     gltf::{GltfMesh, GltfPlugin},
     prelude::*,
 };
-use mygame_protocol::message::Level;
+use protocol::message::Level;
 
 pub mod assets;
 

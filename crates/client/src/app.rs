@@ -8,8 +8,8 @@ use lightyear::{
     client::{config::ClientConfig, plugin::ClientPlugins},
     server::config::ServerConfig,
 };
-use mygame_common::CommonPlugin;
-use mygame_render::RenderPlugin;
+use common::CommonPlugin;
+use render::RenderPlugin;
 
 use crate::game_state::{GameLifecyclePlugin, GameState};
 use crate::input::InputPlugin;

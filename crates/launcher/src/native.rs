@@ -1,4 +1,4 @@
-#![cfg(not(target_family = "wasm"))]
+
 use crate::{
     launch_options::{ClientLaunchOptions, ServerLaunchOptions, SharedLaunchOptions},
     launch_options::{
@@ -18,13 +18,13 @@ use lightyear::{
             PredictionConfig,
         },
         server::{
-            Identity, IoConfig as ServerIoConfig, NetConfig as ServerNetConfig, ServerTransport,
+            IoConfig as ServerIoConfig, NetConfig as ServerNetConfig, ServerTransport,
         },
     },
     server::config::{NetcodeConfig as ServerNetcodeConfig, ServerConfig},
 };
-use mygame_client::app::build_client_app;
-use mygame_server::app::{ServerMode, build_server_app};
+use client::app::build_client_app;
+use server::app::{ServerMode, build_server_app};
 use ron::de::from_str;
 use std::{
     error::Error,
@@ -34,9 +34,9 @@ use std::{
     time::Duration,
 };
 
-const DEFAULT_CLIENT_CONFIG_PATH: &str = "./crates/mygame-launcher/options/client_options.ron";
-const DEFAULT_SERVER_CONFIG_PATH: &str = "./crates/mygame-launcher/options/server_options.ron";
-const DEFAULT_SHARED_CONFIG_PATH: &str = "./crates/mygame-launcher/options/shared_options.ron";
+const DEFAULT_CLIENT_CONFIG_PATH: &str = "./crates/launcher/options/client_options.ron";
+const DEFAULT_SERVER_CONFIG_PATH: &str = "./crates/launcher/options/server_options.ron";
+const DEFAULT_SHARED_CONFIG_PATH: &str = "./crates/launcher/options/shared_options.ron";
 
 #[derive(Parser)]
 #[command(name = "mygame")]
@@ -233,12 +233,6 @@ pub fn run() {
                 .with_protocol_id(shared_launch_options.protocol_id)
                 .with_key(shared_launch_options.key);
 
-            let webtransport_identity = load_certificate_from_files(
-                Path::new(&server_launch_options.webtransport_cert_path),
-                Path::new(&server_launch_options.webtransport_key_path),
-            )
-            .unwrap();
-
             let net_configs = vec![
                 ServerNetConfig::Netcode {
                     // normal udp sockets for desktop
@@ -261,18 +255,6 @@ pub fn run() {
                             to_server_recv,
                             from_server_send,
                         )],
-                    })
-                    .with_conditioner(server_launch_options.conditioner.clone()),
-                },
-                ServerNetConfig::Netcode {
-                    // webtransport
-                    config: server_netcode_config.clone(),
-                    io: ServerIoConfig::from_transport(ServerTransport::WebTransportServer {
-                        server_addr: SocketAddr::new(
-                            IpAddr::V4(server_launch_options.listen_addr),
-                            server_launch_options.webtransport_listen_port,
-                        ),
-                        certificate: webtransport_identity,
                     })
                     .with_conditioner(server_launch_options.conditioner.clone()),
                 },
@@ -301,20 +283,6 @@ pub fn run() {
                 .with_protocol_id(shared_launch_options.protocol_id)
                 .with_key(shared_launch_options.key);
 
-            let webtransport_identity = load_certificate_from_files(
-                Path::new(&server_launch_options.webtransport_cert_path),
-                Path::new(&server_launch_options.webtransport_key_path),
-            )
-            .unwrap();
-
-            println!(
-                "Launching Server with Certificate Digest: {}",
-                webtransport_identity.certificate_chain().as_slice()[0]
-                    .hash()
-                    .to_string()
-                    .replace(":", "")
-            );
-
             let net_configs = vec![
                 ServerNetConfig::Netcode {
                     // normal udp sockets for desktop
@@ -326,18 +294,6 @@ pub fn run() {
                         )
                             .into(),
                     ))
-                    .with_conditioner(server_launch_options.conditioner.clone()),
-                },
-                ServerNetConfig::Netcode {
-                    // webtransport
-                    config: server_netcode_config.clone(),
-                    io: ServerIoConfig::from_transport(ServerTransport::WebTransportServer {
-                        server_addr: SocketAddr::new(
-                            IpAddr::V4(server_launch_options.listen_addr),
-                            server_launch_options.webtransport_listen_port,
-                        ),
-                        certificate: webtransport_identity,
-                    })
                     .with_conditioner(server_launch_options.conditioner.clone()),
                 },
             ];
@@ -357,17 +313,4 @@ pub fn run() {
             build_server_app(server_config, server_launch_options.asset_path, mode).run();
         }
     }
-}
-
-pub fn load_certificate_from_files(
-    cert_path: &Path,
-    key_path: &Path,
-) -> Result<Identity, Box<dyn Error>> {
-    let rt = tokio::runtime::Builder::new_current_thread()
-        .enable_io()
-        .build()?;
-
-    let identity = rt.block_on(async { Identity::load_pemfiles(cert_path, key_path).await })?;
-
-    Ok(identity)
 }

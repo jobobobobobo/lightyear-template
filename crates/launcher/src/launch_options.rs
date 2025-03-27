@@ -101,7 +101,6 @@ pub struct ClientLaunchOptions {
     pub conditioner: LinkConditionerConfig,
     pub correction_ticks_factor: f32,
     pub min_delay: Duration,
-    pub certificate_digest: Option<String>,
     pub asset_path: String,
 }
 
@@ -119,8 +118,7 @@ impl Default for ClientLaunchOptions {
             },
             correction_ticks_factor: 2.0,
             min_delay: Duration::from_millis(25),
-            certificate_digest: None,
-            asset_path: String::from("../mygame-assets/assets"),
+            asset_path: String::from("../assets/assets"),
         }
     }
 }
@@ -134,7 +132,6 @@ pub struct SerializableClientLaunchOptions {
     pub conditioner: SerializableLinkConditionerConfig,
     pub correction_ticks_factor: f32,
     pub min_delay_ms: u64,
-    pub certificate_digest: Option<String>,
     pub asset_path: String,
 }
 
@@ -148,7 +145,6 @@ impl From<ClientLaunchOptions> for SerializableClientLaunchOptions {
             conditioner: SerializableLinkConditionerConfig::from(options.conditioner),
             correction_ticks_factor: options.correction_ticks_factor,
             min_delay_ms: options.min_delay.as_millis() as u64,
-            certificate_digest: options.certificate_digest,
             asset_path: options.asset_path,
         }
     }
@@ -170,7 +166,6 @@ impl From<SerializableClientLaunchOptions> for ClientLaunchOptions {
             conditioner: LinkConditionerConfig::from(serializable.conditioner),
             correction_ticks_factor: serializable.correction_ticks_factor,
             min_delay: Duration::from_millis(serializable.min_delay_ms),
-            certificate_digest: serializable.certificate_digest,
             asset_path: serializable.asset_path,
         }
     }
@@ -180,10 +175,7 @@ pub struct ServerLaunchOptions {
     pub headless: bool,
     pub listen_addr: Ipv4Addr,
     pub udp_listen_port: u16,
-    pub webtransport_listen_port: u16,
     pub conditioner: LinkConditionerConfig,
-    pub webtransport_cert_path: String,
-    pub webtransport_key_path: String,
     pub asset_path: String,
 }
 
@@ -193,15 +185,12 @@ impl Default for ServerLaunchOptions {
             headless: false,
             listen_addr: Ipv4Addr::LOCALHOST,
             udp_listen_port: 12025,
-            webtransport_listen_port: 12026,
             conditioner: LinkConditionerConfig {
                 incoming_latency: Duration::from_millis(50),
                 incoming_jitter: Duration::ZERO,
                 incoming_loss: 0.0,
             },
-            webtransport_cert_path: String::from("./crates/mygame-launcher/web/certs/cert.pem"),
-            webtransport_key_path: String::from("./crates/mygame-launcher/web/certs/key.pem"),
-            asset_path: String::from("../mygame-assets/assets"),
+            asset_path: String::from("../assets/assets"),
         }
     }
 }
@@ -211,10 +200,7 @@ pub struct SerializableServerLaunchOptions {
     pub headless: bool,
     pub listen_addr: String,
     pub udp_listen_port: u16,
-    pub webtransport_listen_port: u16,
     pub conditioner: SerializableLinkConditionerConfig,
-    pub webtransport_cert_path: String,
-    pub webtransport_key_path: String,
     pub asset_path: String,
 }
 
@@ -224,10 +210,7 @@ impl From<ServerLaunchOptions> for SerializableServerLaunchOptions {
             headless: options.headless,
             listen_addr: options.listen_addr.to_string(),
             udp_listen_port: options.udp_listen_port,
-            webtransport_listen_port: options.webtransport_listen_port,
             conditioner: SerializableLinkConditionerConfig::from(options.conditioner),
-            webtransport_cert_path: options.webtransport_cert_path,
-            webtransport_key_path: options.webtransport_key_path,
             asset_path: options.asset_path,
         }
     }
@@ -242,10 +225,10 @@ impl From<SerializableServerLaunchOptions> for ServerLaunchOptions {
                 .parse()
                 .unwrap_or(Ipv4Addr::LOCALHOST),
             udp_listen_port: serializable.udp_listen_port,
-            webtransport_listen_port: serializable.webtransport_listen_port,
+            
             conditioner: LinkConditionerConfig::from(serializable.conditioner),
-            webtransport_cert_path: serializable.webtransport_cert_path,
-            webtransport_key_path: serializable.webtransport_key_path,
+            
+            
             asset_path: serializable.asset_path,
         }
     }

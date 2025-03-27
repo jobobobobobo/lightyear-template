@@ -4,8 +4,8 @@ use lightyear::prelude::{
     client::{ClientCommandsExt, ClientConnection, NetClient},
     *,
 };
-use mygame_assets::{CurrentLevel, LevelState};
-use mygame_protocol::{
+use assets::{CurrentLevel, LevelState};
+use protocol::{
     component::Player,
     message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable},
 };

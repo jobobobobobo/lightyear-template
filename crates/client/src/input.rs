@@ -4,7 +4,7 @@ use leafwing_input_manager::{
     plugin::InputManagerPlugin,
     prelude::{ActionState, InputMap},
 };
-use mygame_common::Simulated;
+use common::Simulated;
 use serde::{Deserialize, Serialize};
 
 use crate::{game_state::GameState, replication::LocalPlayer, ui::system_menu::SystemMenuState};
