@@ -148,11 +148,6 @@ pub fn run() {
 
             let client_launch_options = load_client_options(cli.client_options);
 
-            let mut server_launch_options = load_server_options(cli.server_options);
-
-            // Always set server to headless in client mode
-            server_launch_options.headless = true;
-
             let (from_server_send, from_server_recv) = crossbeam_channel::unbounded();
             let (to_server_send, to_server_recv) = crossbeam_channel::unbounded();
 
@@ -179,7 +174,7 @@ pub fn run() {
                 io: local_transport_config,
             };
 
-            let local_client_config = ClientConfig {
+            let client_config = ClientConfig {
                 shared: shared_config,
                 net: local_netcode,
                 prediction: PredictionConfig::default()
@@ -191,86 +186,9 @@ pub fn run() {
                 ..default()
             };
 
-            let remote_transport_config =
-                ClientIoConfig::from_transport(ClientTransport::UdpSocket(SocketAddr::new(
-                    IpAddr::V4(client_launch_options.listen_addr),
-                    client_launch_options.listen_port,
-                )));
-
-            let remote_auth = Authentication::Manual {
-                server_addr: SocketAddr::new(
-                    IpAddr::V4(client_launch_options.server_addr),
-                    client_launch_options.server_port,
-                ),
-                client_id: cli.client_id,
-                private_key: shared_launch_options.key,
-                protocol_id: shared_launch_options.protocol_id,
-            };
-
-            let remote_netcode = ClientNetConfig::Netcode {
-                auth: remote_auth,
-                config: ClientNetcodeConfig {
-                    token_expire_secs: -1,
-                    client_timeout_secs: 5,
-                    ..default()
-                },
-                io: remote_transport_config,
-            };
-
-            let remote_client_config = ClientConfig {
-                shared: shared_config,
-                net: remote_netcode,
-                prediction: PredictionConfig::default()
-                    .with_correction_ticks_factor(client_launch_options.correction_ticks_factor),
-                interpolation: InterpolationConfig {
-                    min_delay: client_launch_options.min_delay,
-                    send_interval_ratio: 0.,
-                },
-                ..default()
-            };
-
-            let server_netcode_config = ServerNetcodeConfig::default()
-                .with_protocol_id(shared_launch_options.protocol_id)
-                .with_key(shared_launch_options.key);
-
-            let net_configs = vec![
-                ServerNetConfig::Netcode {
-                    // normal udp sockets for desktop
-                    config: server_netcode_config.clone(),
-                    io: ServerIoConfig::from_transport(ServerTransport::UdpSocket(
-                        (
-                            server_launch_options.listen_addr,
-                            server_launch_options.udp_listen_port,
-                        )
-                            .into(),
-                    ))
-                    .with_conditioner(server_launch_options.conditioner.clone()),
-                },
-                ServerNetConfig::Netcode {
-                    // channels, for client host
-                    config: server_netcode_config.clone(),
-                    io: ServerIoConfig::from_transport(ServerTransport::Channels {
-                        channels: vec![(
-                            SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 12027), // port doesn't matter?
-                            to_server_recv,
-                            from_server_send,
-                        )],
-                    })
-                    .with_conditioner(server_launch_options.conditioner.clone()),
-                },
-            ];
-
-            let server_config = ServerConfig {
-                shared: shared_config,
-                net: net_configs,
-                ..default()
-            };
-
             build_client_app(
-                remote_client_config,
-                local_client_config,
+                client_config,
                 client_launch_options.asset_path,
-                server_config,
             )
             .run();
         }
