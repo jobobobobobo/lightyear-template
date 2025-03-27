@@ -10,17 +10,17 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version number in the format `v1.2.3`'
+        description: "Version number in the format `v1.2.3`"
         required: true
         type: string
 
 # Configure the release workflow by editing these values.
 env:
   # The base filename of the binary produced by `cargo build`.
-  cargo_build_binary_name: mygame-launcher
+  cargo_build_binary_name: launcher
 
   # The path to the assets directory.
-  assets_path: crates/mygame-assets/assets
+  assets_path: crates/assets/assets
 
   # The path to the options directory.
   options_path: deployment/client/options
@@ -30,10 +30,11 @@ env:
 
   # The itch.io project to upload to in the format `user-name/project-name`.
   # There will be no upload to itch.io if this is commented out.
+  # FIXME: change itch path
   upload_to_itch: piefayth/mygame
 
   # Deploy to GitHub Pages
-  deploy_to_github_pages: true
+  #deploy_to_github_pages: true
 
   ############
   # ADVANCED #
@@ -42,26 +43,31 @@ env:
   # The ID of the app produced by this workflow.
   # Applies to macOS releases.
   # Must contain only A-Z, a-z, 0-9, hyphen, and period: https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundleidentifier
-  app_id: piefayth.mygame
+  # FIXME: change app id
+  #app_id: piefayth.mygame
 
   # The base filename of the binary in the package produced by this workflow.
   # Applies to Windows, macOS, and Linux releases.
   # Defaults to `cargo_build_binary_name` if commented out.
+  # FIXME: change binary name
   #app_binary_name: mygame
 
   # The name of the `.zip` or `.dmg` file produced by this workflow.
   # Defaults to `app_binary_name` if commented out.
-  app_package_name: mygame
+  # FIXME: change package name
+  #app_package_name: mygame
 
   # The display name of the app produced by this workflow.
   # Applies to macOS releases.
   # Defaults to `app_package_name` if commented out.
-  app_display_name: My Game
+  # FIXME: change display name
+  #app_display_name: My Game
 
   # The short display name of the app produced by this workflow.
   # Applies to macOS releases.
   # Must be 15 or fewer characters: https://developer.apple.com/documentation/bundleresources/information_property_list/cfbundlename
   # Defaults to `app_display_name` if commented out.
+  # FIXME: change short name
   #app_short_name: My Game
 
   # Before enabling LFS, please take a look at GitHub's documentation for costs and quota limits:
@@ -89,13 +95,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: web
-            targets: wasm32-unknown-unknown
-            profile: wasm-release
-            binary_ext: .wasm
-            package_ext: .zip
-            runner: ubuntu-latest
-
           - platform: linux
             targets: x86_64-unknown-linux-gnu
             profile: release
@@ -173,7 +172,7 @@ jobs:
         if: ${{ matrix.platform == 'web' }}
         run: |
           cargo binstall --no-confirm trunk wasm-bindgen-cli wasm-opt
-          trunk build --locked --release --config ./crates/mygame-launcher/Trunk.toml --dist "${GITHUB_WORKSPACE}/tmp/app" -v
+          trunk build --locked --release --config ./crates/launcher/Trunk.toml --dist "${GITHUB_WORKSPACE}/tmp/app" -v
 
       - name: Build binaries (non-Web)
         if: ${{ matrix.platform != 'web' }}
@@ -197,7 +196,7 @@ jobs:
         run: |
           # Copy assets
           cp -r ./'${{ env.assets_path }}' '${{ env.app }}/assets' || true # Ignore error if assets folder does not exist
-          
+
           # Copy options
           cp -r ./'${{ env.options_path }}' '${{ env.app }}/options' || true # Ignore error if options folder does not exist
 
@@ -279,7 +278,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Do nothing
-        run: 'true'
+        run: "true"
     outputs:
       target: ${{ env.upload_to_itch }}
 
@@ -288,7 +287,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Do nothing
-        run: 'true'
+        run: "true"
     outputs:
       deploy: ${{ env.deploy_to_github_pages }}
 
@@ -343,32 +342,32 @@ jobs:
     concurrency:
       group: "pages"
       cancel-in-progress: true
-    
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-      
+
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        
+
       - name: Download web build
         uses: actions/download-artifact@v4
         with:
           name: package-web
           path: tmp
-          
+
       - name: Unzip web package
         working-directory: tmp
         run: |
           unzip -q *.zip
           rm *.zip
-          
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'tmp'
-          
+          path: "tmp"
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
