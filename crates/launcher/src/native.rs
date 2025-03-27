@@ -1,4 +1,3 @@
-
 use crate::{
     launch_options::{ClientLaunchOptions, ServerLaunchOptions, SharedLaunchOptions},
     launch_options::{
@@ -8,6 +7,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use clap::{Parser, ValueEnum};
+use client::app::build_client_app;
 use lightyear::{
     client::config::{ClientConfig, NetcodeConfig as ClientNetcodeConfig},
     connection::client::NetConfig as ClientNetConfig,
@@ -17,15 +17,12 @@ use lightyear::{
             Authentication, ClientTransport, InterpolationConfig, IoConfig as ClientIoConfig,
             PredictionConfig,
         },
-        server::{
-            IoConfig as ServerIoConfig, NetConfig as ServerNetConfig, ServerTransport,
-        },
+        server::{IoConfig as ServerIoConfig, NetConfig as ServerNetConfig, ServerTransport},
     },
     server::config::{NetcodeConfig as ServerNetcodeConfig, ServerConfig},
 };
-use client::app::build_client_app;
-use server::app::{ServerMode, build_server_app};
 use ron::de::from_str;
+use server::app::{ServerMode, build_server_app};
 use std::{
     error::Error,
     fs,
@@ -186,11 +183,7 @@ pub fn run() {
                 ..default()
             };
 
-            build_client_app(
-                client_config,
-                client_launch_options.asset_path,
-            )
-            .run();
+            build_client_app(client_config, client_launch_options.asset_path).run();
         }
         Mode::Server => {
             let server_launch_options = load_server_options(cli.server_options);
@@ -201,20 +194,18 @@ pub fn run() {
                 .with_protocol_id(shared_launch_options.protocol_id)
                 .with_key(shared_launch_options.key);
 
-            let net_configs = vec![
-                ServerNetConfig::Netcode {
-                    // normal udp sockets for desktop
-                    config: server_netcode_config.clone(),
-                    io: ServerIoConfig::from_transport(ServerTransport::UdpSocket(
-                        (
-                            server_launch_options.listen_addr,
-                            server_launch_options.udp_listen_port,
-                        )
-                            .into(),
-                    ))
-                    .with_conditioner(server_launch_options.conditioner.clone()),
-                },
-            ];
+            let net_configs = vec![ServerNetConfig::Netcode {
+                // normal udp sockets for desktop
+                config: server_netcode_config.clone(),
+                io: ServerIoConfig::from_transport(ServerTransport::UdpSocket(
+                    (
+                        server_launch_options.listen_addr,
+                        server_launch_options.udp_listen_port,
+                    )
+                        .into(),
+                ))
+                .with_conditioner(server_launch_options.conditioner.clone()),
+            }];
 
             let server_config = ServerConfig {
                 shared: shared_config,

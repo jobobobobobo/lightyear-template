@@ -3,12 +3,12 @@ use bevy::{
     log::{Level, LogPlugin},
     prelude::*,
 };
+use common::CommonPlugin;
 use lightyear::prelude::client::{NetConfig, VisualInterpolationPlugin};
 use lightyear::{
     client::{config::ClientConfig, plugin::ClientPlugins},
     server::config::ServerConfig,
 };
-use common::CommonPlugin;
 use render::RenderPlugin;
 
 use crate::game_state::{GameLifecyclePlugin, GameState};
@@ -17,7 +17,6 @@ use crate::{
     interpolation::InterpolationPlugin, network::NetworkPlugin, replication::ReplicationPlugin,
     ui::UiPlugin,
 };
-
 
 // TODO: remove this?
 /// The root asset path is preserved here by the client at startup so it can be forwarded

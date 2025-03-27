@@ -1,9 +1,9 @@
+use assets::{CurrentLevel, LevelState};
 use bevy::prelude::*;
 use lightyear::prelude::{
     FromClients, ReplicationGroup, ServerConnectionManager,
     server::{NetworkingState, ServerCommandsExt, ServerConnection},
 };
-use assets::{CurrentLevel, LevelState};
 use protocol::message::{ClientHostRequestShutdown, Level};
 
 use crate::app::ServerMode;

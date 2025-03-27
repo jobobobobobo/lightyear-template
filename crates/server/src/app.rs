@@ -19,11 +19,11 @@ use bevy::{
     state::app::StatesPlugin,
     window::ExitCondition,
 };
+use common::CommonPlugin;
 use lightyear::{
     prelude::*,
     server::{config::ServerConfig, plugin::ServerPlugins},
 };
-use common::CommonPlugin;
 use render::RenderPlugin;
 
 use crate::{network::NetworkPlugin, replication::ReplicationPlugin};

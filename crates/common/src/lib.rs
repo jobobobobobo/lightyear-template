@@ -1,10 +1,10 @@
+use assets::AssetPlugin;
 use avian3d::{PhysicsPlugins, prelude::PhysicsInterpolationPlugin};
 use bevy::prelude::*;
 use lightyear::prelude::{
     client::{Interpolated, Predicted, VisualInterpolateStatus},
     server::ReplicationTarget,
 };
-use assets::AssetPlugin;
 use protocol::ProtocolPlugin;
 
 pub mod level;

@@ -225,10 +225,9 @@ impl From<SerializableServerLaunchOptions> for ServerLaunchOptions {
                 .parse()
                 .unwrap_or(Ipv4Addr::LOCALHOST),
             udp_listen_port: serializable.udp_listen_port,
-            
+
             conditioner: LinkConditionerConfig::from(serializable.conditioner),
-            
-            
+
             asset_path: serializable.asset_path,
         }
     }

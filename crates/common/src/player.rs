@@ -1,3 +1,4 @@
+use assets::{LevelState, assets::GlobalAssets};
 use avian3d::prelude::{Collider, LinearVelocity, RigidBody, collider};
 use bevy::{gltf::GltfMesh, prelude::*};
 use leafwing_input_manager::prelude::{ActionState, InputMap, VirtualDPad};
@@ -5,7 +6,6 @@ use lightyear::prelude::{
     client::{Confirmed, Interpolated, Predicted},
     server::ReplicationTarget,
 };
-use assets::{LevelState, assets::GlobalAssets};
 use protocol::{component::Player, input::NetworkedInput};
 
 use crate::{Rendered, Simulated};
