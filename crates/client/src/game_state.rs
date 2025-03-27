@@ -1,9 +1,9 @@
+use assets::Geometry;
 use bevy::prelude::*;
 use lightyear::prelude::{
     ClientConnectionManager, Replicated,
     client::{ClientCommandsExt, Confirmed, Predicted},
 };
-use assets::Geometry;
 use protocol::message::{ClientHostRequestShutdown, Reliable};
 
 #[derive(States, Debug, Default, Clone, PartialEq, Eq, Hash)]

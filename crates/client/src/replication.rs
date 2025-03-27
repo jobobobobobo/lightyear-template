@@ -1,10 +1,10 @@
 use crate::game_state::GameState;
+use assets::{CurrentLevel, LevelState};
 use bevy::prelude::*;
 use lightyear::prelude::{
     client::{ClientCommandsExt, ClientConnection, NetClient},
     *,
 };
-use assets::{CurrentLevel, LevelState};
 use protocol::{
     component::Player,
     message::{ClientLevelLoadComplete, ServerWelcome, UnorderedReliable},

@@ -1,10 +1,10 @@
 use bevy::prelude::*;
+use common::Simulated;
 use leafwing_input_manager::{
     Actionlike,
     plugin::InputManagerPlugin,
     prelude::{ActionState, InputMap},
 };
-use common::Simulated;
 use serde::{Deserialize, Serialize};
 
 use crate::{game_state::GameState, replication::LocalPlayer, ui::system_menu::SystemMenuState};

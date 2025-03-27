@@ -1,3 +1,4 @@
+use assets::CurrentLevel;
 use avian3d::prelude::{Position, Rotation};
 use bevy::prelude::*;
 use lightyear::prelude::{
@@ -5,7 +6,6 @@ use lightyear::prelude::{
     ServerConnectionManager, ServerDisconnectEvent, ServerReplicate,
     server::{ControlledBy, Lifetime, ServerCommandsExt, SyncTarget},
 };
-use assets::CurrentLevel;
 use protocol::{
     component::Player,
     message::{ClientLevelLoadComplete, Level, ServerWelcome, UnorderedReliable},
