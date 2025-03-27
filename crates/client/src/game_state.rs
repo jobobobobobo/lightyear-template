@@ -10,11 +10,7 @@ use protocol::message::{ClientHostRequestShutdown, Reliable};
 pub enum GameState {
     #[default]
     MainMenu,
-    #[cfg(feature = "host")]
-    Hosting, // Prepping the local server
     ConnectingRemote, // Connection request sent to the server,
-    #[cfg(feature = "host")]
-    ConnectingSelf, // Connection request sent to the LOCAL server
     Loading,          // Connected and server told us to load something
     Spawning,         // Loaded the assets, now wait for the Player to be replicated
     Playing,          // Player exists and we can give control to the client

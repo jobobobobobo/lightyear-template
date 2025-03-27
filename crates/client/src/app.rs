@@ -18,11 +18,8 @@ use crate::{
     ui::UiPlugin,
 };
 
-#[cfg(feature = "host")]
-use crate::host::HostPlugin;
-#[cfg(feature = "host")]
-use lightyear::prelude::client::IoConfig;
 
+// TODO: remove this?
 /// The root asset path is preserved here by the client at startup so it can be forwarded
 /// to the client server, should they choose to host.
 #[derive(Resource)]
@@ -64,7 +61,6 @@ fn build_core_client_app(
     app
 }
 
-#[cfg(not(feature = "host"))]
 pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App {
     let mut app = App::new();
 
@@ -74,30 +70,6 @@ pub fn build_client_app(client_config: ClientConfig, asset_path: String) -> App 
         server_config: None,
         client_local_config: None,
         client_remote_config: Some(client_config),
-    });
-
-    app
-}
-
-/// The "host" feature has its own signature for build_client_app so it may
-/// obtain a ServerConfig to configure the server with.
-#[cfg(feature = "host")]
-pub fn build_client_app(
-    client_remote_config: ClientConfig,
-    client_local_config: ClientConfig,
-    asset_path: String,
-    server_config: ServerConfig,
-) -> App {
-    let mut app = App::new();
-
-    build_core_client_app(&mut app, client_remote_config.clone(), asset_path.clone());
-
-    app.add_plugins((HostPlugin,));
-
-    app.insert_resource(LaunchConfigurations {
-        server_config: Some(server_config),
-        client_local_config: Some(client_local_config),
-        client_remote_config: Some(client_remote_config),
     });
 
     app

@@ -18,7 +18,3 @@ crossbeam-channel.workspace = true
 
 [lints]
 workspace = true
-
-
-[features]
-host = ["dep:server"]
