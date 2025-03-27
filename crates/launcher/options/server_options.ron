@@ -1,11 +1,11 @@
 (
-    headless: true,
-    listen_addr: "0.0.0.0",
+    headless: false,
+    listen_addr: "127.0.0.1",
     udp_listen_port: 12025,
     conditioner: (
         incoming_latency_ms: 50,
         incoming_jitter_ms: 0,
         incoming_loss: 0.0,
     ),
-    asset_path: "/app/assets"
+    asset_path: "../assets/assets"
 )

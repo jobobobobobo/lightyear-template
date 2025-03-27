@@ -37,7 +37,8 @@
           CARGO_BUILD_TARGET = "x86_64-pc-windows-gnu";
 
           # fixes issues related to libring
-          TARGET_CC = "${pkgs.pkgsCross.mingwW64.stdenv.cc}/bin/${pkgs.pkgsCross.mingwW64.stdenv.cc.targetPrefix}cc";
+          TARGET_CC =
+            "${pkgs.pkgsCross.mingwW64.stdenv.cc}/bin/${pkgs.pkgsCross.mingwW64.stdenv.cc.targetPrefix}cc";
 
           #fixes issues related to openssl
           OPENSSL_DIR = "${pkgs.openssl.dev}";
@@ -49,16 +50,17 @@
             pkgsCross.mingwW64.windows.pthreads
           ];
         };
-      in
-      {
+      in {
         packages = {
           inherit my-crate;
           default = my-crate;
         };
 
-        checks = {
-          inherit my-crate;
+        devShells.default = craneLib.devShell {
+          inputsFrom = [ my-crate ];
+          packages = [ pkgs.rust-analyzer pkgs.rustfmt ];
         };
-      }
-    );
+
+        checks = { inherit my-crate; };
+      });
 }
