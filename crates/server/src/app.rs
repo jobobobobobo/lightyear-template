@@ -10,10 +10,10 @@ use bevy::{
     pbr::PbrPlugin,
     prelude::*,
     render::{
-        RenderPlugin as BevyRenderPlugin,
         camera::CameraPlugin,
         mesh::skinning::SkinnedMeshInverseBindposes,
         settings::{RenderCreation, WgpuSettings},
+        RenderPlugin as BevyRenderPlugin,
     },
     scene::ScenePlugin,
     state::app::StatesPlugin,
@@ -32,7 +32,6 @@ use crate::{network::NetworkPlugin, replication::ReplicationPlugin};
 pub enum ServerMode {
     Windowed,
     Headless,
-    ClientHost(ClientId),
 }
 
 pub fn build_server_app(server_config: ServerConfig, asset_path: String, mode: ServerMode) -> App {
@@ -75,12 +74,7 @@ pub fn build_server_app(server_config: ServerConfig, asset_path: String, mode: S
                 PbrPlugin::default(),
             ));
 
-            match mode {
-                ServerMode::ClientHost(_) => {}
-                _ => {
-                    app.add_plugins(LogPlugin::default());
-                }
-            }
+            app.add_plugins(LogPlugin::default());
 
             app.init_asset::<Image>(); // or add ImagePlugin
         }
