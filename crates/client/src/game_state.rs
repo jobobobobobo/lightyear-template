@@ -1,10 +1,10 @@
 use assets::Geometry;
 use bevy::prelude::*;
 use lightyear::prelude::{
-    ClientConnectionManager, Replicated,
     client::{ClientCommandsExt, Confirmed, Predicted},
+    ClientConnectionManager, Replicated,
 };
-use protocol::message::{ClientHostRequestShutdown, Reliable};
+use protocol::message::Reliable;
 
 #[derive(States, Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {
@@ -37,12 +37,9 @@ fn cleanup_on_exit_to_menu(
             With<Replicated>,
         )>,
     >,
-    mut client_manager: ResMut<ClientConnectionManager>,
+    //    mut client_manager: ResMut<ClientConnectionManager>,
 ) {
     println!("sending request shutdown");
-    // Irrelevant if this fails since we're disconnecting + closing the server
-    let _ = client_manager
-        .send_message::<Reliable, ClientHostRequestShutdown>(&ClientHostRequestShutdown);
 
     for thing in &q_everything {
         commands.entity(thing).despawn_recursive()
