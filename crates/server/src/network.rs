@@ -4,7 +4,7 @@ use lightyear::prelude::{
     server::{NetworkingState, ServerCommandsExt, ServerConnection},
     FromClients, ReplicationGroup, ServerConnectionManager,
 };
-use protocol::message::{ClientHostRequestShutdown, Level};
+use protocol::message::Level;
 
 use crate::app::ServerMode;
 
