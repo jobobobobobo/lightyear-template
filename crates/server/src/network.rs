@@ -1,8 +1,8 @@
 use assets::{CurrentLevel, LevelState};
 use bevy::prelude::*;
 use lightyear::prelude::{
-    server::{NetworkingState, ServerCommandsExt, ServerConnection},
     FromClients, ReplicationGroup, ServerConnectionManager,
+    server::{NetworkingState, ServerCommandsExt, ServerConnection},
 };
 use protocol::message::Level;
 

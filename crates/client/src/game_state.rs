@@ -1,8 +1,8 @@
 use assets::Geometry;
 use bevy::prelude::*;
 use lightyear::prelude::{
-    client::{ClientCommandsExt, Confirmed, Predicted},
     ClientConnectionManager, Replicated,
+    client::{ClientCommandsExt, Confirmed, Predicted},
 };
 use protocol::message::Reliable;
 

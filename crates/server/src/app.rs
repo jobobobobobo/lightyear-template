@@ -10,10 +10,10 @@ use bevy::{
     pbr::PbrPlugin,
     prelude::*,
     render::{
+        RenderPlugin as BevyRenderPlugin,
         camera::CameraPlugin,
         mesh::skinning::SkinnedMeshInverseBindposes,
         settings::{RenderCreation, WgpuSettings},
-        RenderPlugin as BevyRenderPlugin,
     },
     scene::ScenePlugin,
     state::app::StatesPlugin,
