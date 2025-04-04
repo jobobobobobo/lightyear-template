@@ -1,0 +1,1 @@
+#+TITLE: An Opinionated Template for Bevy Development
