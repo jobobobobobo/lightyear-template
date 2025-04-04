@@ -19,17 +19,26 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        toolchain = with fenix.packages.${system};
+        winToolchain = with fenix.packages.${system};
           combine [
             minimal.rustc
             minimal.cargo
             targets.x86_64-pc-windows-gnu.latest.rust-std
           ];
 
-        craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
+        winCraneLib = (crane.mkLib pkgs).overrideToolchain winToolchain;
 
-        my-crate = craneLib.buildPackage {
-          src = craneLib.cleanCargoSource ./.;
+        gnuToolchain = with fenix.packages.${system};
+          combine [
+            minimal.rustc
+            minimal.cargo
+            targets.x86_64-unknown-linux-gnu.latest.rust-std
+          ];
+
+        gnuCraneLib = (crane.mkLib pkgs).overrideToolchain gnuToolchain;
+
+        client = winCraneLib.buildPackage {
+          src = winCraneLib.cleanCargoSource ./.;
 
           strictDeps = true;
           doCheck = false;
@@ -50,17 +59,31 @@
             pkgsCross.mingwW64.windows.pthreads
           ];
         };
+
+        server = gnuCraneLib.buildPackage {
+          src = gnuCraneLib.cleanCargoSource ./.;
+
+          strictDeps = true;
+          doCheck = false;
+
+          CARGO_BUILD_TARGET = "x86_64-unknown-linux-gnu";
+
+        };
       in {
         packages = {
-          inherit my-crate;
-          default = my-crate;
+          inherit client;
+          inherit server;
+          default = client;
         };
 
-        devShells.default = craneLib.devShell {
-          inputsFrom = [ my-crate ];
+        devShells.default = gnuCraneLib.devShell {
+          inputsFrom = [ client server ];
           packages = [ pkgs.rust-analyzer pkgs.rustfmt ];
         };
 
-        checks = { inherit my-crate; };
+        checks = {
+          inherit client;
+          inherit server;
+        };
       });
 }

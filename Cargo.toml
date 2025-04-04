@@ -9,6 +9,8 @@ members = [
   "crates/assets"
 ]
 resolver = "2"
+package.version = "0.0.4"
+metadata.crane.name = "lightyear template"
 
 [patch.crates-io]
 leafwing-input-manager = {git = "https://github.com/Leafwing-Studios/leafwing-input-manager", branch = "main"}
@@ -42,6 +44,8 @@ lightyear = {git = "https://github.com/cBournhonesque/lightyear", branch = "main
   "avian3d",
 ]}
 
+lightyear_avian = {git = "https://github.com/cBournhonesque/lightyear.git", branch = "main", features = ["lag_compensation", "3d"]}
+
 avian3d = {version = "0.2.0", features = [
   "3d",
   "f32",
@@ -72,3 +76,6 @@ unused_imports = "allow"
 
 [workspace.lints.clippy]
 type_complexity = "allow"
+
+[workspace.build-dependencies]
+embed-resource = "1.6.3"
